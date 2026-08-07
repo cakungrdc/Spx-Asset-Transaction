@@ -33,8 +33,14 @@
         </h1>
         <p class="text-xs text-slate-400">Peminjaman Bebas OPS & Pengembalian Presisi</p>
       </div>
-      <div id="status-koneksi" class="px-2.5 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-        ● Realtime Active
+      <div class="flex items-center gap-3">
+        <!-- TOMBOL TAMBAH ASET BARU -->
+        <button id="btn-open-add-asset" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition shadow border border-orange-400/30 flex items-center gap-1">
+          ➕ Tambah Aset
+        </button>
+        <div id="status-koneksi" class="px-2.5 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+          ● Realtime Active
+        </div>
       </div>
     </div>
 
@@ -286,10 +292,79 @@
 
   </div>
 
+  <!-- MODAL PROTEKSI PASSWORD ADMIN -->
+  <div id="modal-auth" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-orange-500/40 rounded-xl p-5 max-w-sm w-full space-y-4 shadow-2xl">
+      <div class="text-center">
+        <h3 class="text-sm font-bold text-orange-400">🔒 Verifikasi Password Admin</h3>
+        <p class="text-[10px] text-slate-400 mt-0.5">Masukkan PIN/Password untuk pendaftaran aset baru</p>
+      </div>
+      <div>
+        <input type="password" id="input-admin-pass" 
+          class="w-full bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-lg p-2.5 text-center text-sm font-mono text-white focus:outline-none" 
+          placeholder="Password Admin (Default: 1234)">
+        <p id="auth-error" class="text-[10px] text-rose-400 text-center mt-1 hidden">Password Salah!</p>
+      </div>
+      <div class="flex gap-2">
+        <button id="btn-cancel-auth" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs py-2 rounded-lg font-bold">Batal</button>
+        <button id="btn-submit-auth" class="w-1/2 bg-orange-600 hover:bg-orange-500 text-white text-xs py-2 rounded-lg font-bold">Verifikasi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL FORM TAMBAH ASET BARU -->
+  <div id="modal-add-asset" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 max-w-md w-full space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <h3 class="text-sm font-bold text-orange-400 flex items-center gap-2">➕ Register Aset Baru</h3>
+        <button id="btn-close-modal" class="text-slate-400 hover:text-slate-200 text-sm font-bold">✕</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-1">BARCODE / NO ASET *</label>
+          <input type="text" id="new-no-asset" 
+            class="w-full bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-lg p-2.5 text-xs text-white font-mono uppercase focus:outline-none" 
+            placeholder="Contoh: PDA-042 / HT-012" autocomplete="off">
+        </div>
+
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-1">KATEGORI / TIPE ASET *</label>
+          <select id="new-asset-id" class="w-full bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-lg p-2.5 text-xs text-white focus:outline-none">
+            <option value="PDA">📱 PDA</option>
+            <option value="HT">📻 HT</option>
+            <option value="TANG">🛠️ TANG</option>
+            <option value="METERAN">📏 METERAN</option>
+            <option value="TOA">📢 TOA</option>
+            <option value="CARD">💳 KARTU AKSES (CARD)</option>
+            <option value="LAINNYA">📦 LAIN-LAIN</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-1">NAMA / DESKRIPSI ASET (OPSIONAL)</label>
+          <input type="text" id="new-asset-name" 
+            class="w-full bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-lg p-2.5 text-xs text-white font-mono uppercase focus:outline-none" 
+            placeholder="Contoh: PDA ZEBRA TC26" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 border-t border-slate-800 pt-3">
+        <button id="btn-cancel-add" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg font-bold">Batal</button>
+        <button id="btn-save-asset" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded-lg font-bold transition shadow-lg shadow-emerald-600/30">
+          Simpan Aset Baru
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const SUPABASE_URL = "https://jgjbmbhgaxxxdapjusxl.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnamJtYmhnYXh4eGRhcGp1c3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2OTc4MjUsImV4cCI6MjA5NzI3MzgyNX0.qJPY5efLbLrjEXexxXxeDpLKibeMTphmVoXgZzT6u2Y";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // PASSWORD ADMIN DEFAULT (SILAKAN UBAH SESUAI KEBUTUHAN)
+    const ADMIN_PASSWORD = "1234";
 
     const pinjamOps = document.getElementById('pinjam-ops');
     const pinjamAsset = document.getElementById('pinjam-asset');
@@ -299,6 +374,15 @@
 
     const previewPinjamOps = document.getElementById('preview-pinjam-ops');
     const previewKembaliOps = document.getElementById('preview-kembali-ops');
+
+    const modalAuth = document.getElementById('modal-auth');
+    const modalAddAsset = document.getElementById('modal-add-asset');
+    const inputAdminPass = document.getElementById('input-admin-pass');
+    const authError = document.getElementById('auth-error');
+
+    const newNoAsset = document.getElementById('new-no-asset');
+    const newAssetId = document.getElementById('new-asset-id');
+    const newAssetName = document.getElementById('new-asset-name');
 
     const CARD_LIST = Array.from({ length: 11 }, (_, i) => `CARD-${String(i + 1).padStart(2, '0')}`);
 
@@ -357,6 +441,94 @@
 
     pinjamAsset.addEventListener('input', () => clearInputStyle(pinjamAsset));
     kembaliAsset.addEventListener('input', () => clearInputStyle(kembaliAsset));
+
+    // --- LOGIK MODAL & TAMBAH ASET ---
+    document.getElementById('btn-open-add-asset').addEventListener('click', () => {
+      inputAdminPass.value = '';
+      authError.classList.add('hidden');
+      modalAuth.classList.remove('hidden');
+      modalAuth.classList.add('flex');
+      inputAdminPass.focus();
+    });
+
+    document.getElementById('btn-cancel-auth').addEventListener('click', () => {
+      modalAuth.classList.add('hidden');
+      modalAuth.classList.remove('flex');
+    });
+
+    document.getElementById('btn-submit-auth').addEventListener('click', verifyAdminPass);
+    inputAdminPass.addEventListener('keypress', (e) => { if (e.key === 'Enter') verifyAdminPass(); });
+
+    function verifyAdminPass() {
+      if (inputAdminPass.value === ADMIN_PASSWORD) {
+        modalAuth.classList.add('hidden');
+        modalAuth.classList.remove('flex');
+
+        newNoAsset.value = '';
+        newAssetName.value = '';
+        modalAddAsset.classList.remove('hidden');
+        modalAddAsset.classList.add('flex');
+        newNoAsset.focus();
+      } else {
+        authError.classList.remove('hidden');
+        playSound('error');
+      }
+    }
+
+    function closeModalAddAsset() {
+      modalAddAsset.classList.add('hidden');
+      modalAddAsset.classList.remove('flex');
+    }
+
+    document.getElementById('btn-close-modal').addEventListener('click', closeModalAddAsset);
+    document.getElementById('btn-cancel-add').addEventListener('click', closeModalAddAsset);
+
+    newNoAsset.addEventListener('input', () => {
+      newNoAsset.value = newNoAsset.value.toUpperCase();
+    });
+
+    newAssetName.addEventListener('input', () => {
+      newAssetName.value = newAssetName.value.toUpperCase();
+    });
+
+    document.getElementById('btn-save-asset').addEventListener('click', saveNewAsset);
+
+    async function saveNewAsset() {
+      const barcode = newNoAsset.value.trim().toUpperCase();
+      const assetCat = newAssetId.value;
+      const assetDesc = newAssetName.value.trim().toUpperCase();
+
+      if (!barcode) {
+        playSound('error');
+        return alert("Barcode / No Asset wajib diisi!");
+      }
+
+      // Simpan Ke Supabase (master_aset)
+      const { data, error } = await supabaseClient
+        .from('master_aset')
+        .insert([
+          { 
+            no_asset: barcode, 
+            asset_id: assetCat, 
+            nama_asset: assetDesc || barcode 
+          }
+        ]);
+
+      if (error) {
+        playSound('error');
+        if (error.code === '23505') {
+          alert(`❌ Gagal: No Aset '${barcode}' sudah terdaftar di database!`);
+        } else {
+          alert(`❌ Error: ${error.message}`);
+        }
+      } else {
+        playSound('success');
+        showAlert(`🎉 Berhasil mendaftarkan Aset Baru: ${barcode}`, true);
+        closeModalAddAsset();
+        await initMasterData();
+        await loadTables();
+      }
+    }
 
     async function checkPinjamOpsPreview() {
       const opsId = pinjamOps.value.trim().toUpperCase();
@@ -547,7 +719,6 @@
       const assetInput = isPinjam ? pinjamAsset : kembaliAsset;
       const previewElem = isPinjam ? previewPinjamOps : previewKembaliOps;
 
-      // PAKSA KEDUA INPUT OPS ID MENJADI UPPERCASE SEBELUM DIKIRIM KE DB/RPC
       const opsId = opsInput.value.trim().toUpperCase();
       const noAsset = assetInput.value.trim();
 
