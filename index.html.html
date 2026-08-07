@@ -34,7 +34,7 @@
         <p class="text-xs text-slate-400">Peminjaman Bebas OPS & Pengembalian Presisi</p>
       </div>
       <div id="status-koneksi" class="px-2.5 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-        ● Ready
+        ● Realtime Active
       </div>
     </div>
 
@@ -287,7 +287,7 @@
     <!-- POSISI BAWAH: UNSCANNED & OVERDUE > 1 MINGGU -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
       
-      <!-- TABEL ASET UNSCANNED (TIDAK ADA DI TRANS / ADMIN) -->
+      <!-- TABEL ASET UNSCANNED -->
       <div class="bg-slate-900 p-4 rounded-xl border border-rose-500/40 shadow-xl flex flex-col">
         <div class="flex justify-between items-center mb-1">
           <h2 class="text-xs font-bold text-rose-400 flex items-center gap-1.5">
@@ -312,7 +312,7 @@
         </div>
       </div>
 
-      <!-- TABEL PEMINJAMAN > 1 MINGGU (> 168 JAM) -->
+      <!-- TABEL PEMINJAMAN > 1 MINGGU -->
       <div class="bg-slate-900 p-4 rounded-xl border border-amber-500/40 shadow-xl flex flex-col">
         <div class="flex justify-between items-center mb-1">
           <h2 class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
@@ -357,6 +357,10 @@
     const previewKembaliOps = document.getElementById('preview-kembali-ops');
 
     const CARD_LIST = Array.from({ length: 11 }, (_, i) => `CARD-${String(i + 1).padStart(2, '0')}`);
+
+    // CACHE DATA STATIS (DILUAD CUMA 1 KALI UNTUK HEMAT KUOTA)
+    let CACHE_MASTER_ASSETS = [];
+    let CACHE_TOTAL_COUNTS = { pda: 0, ht: 0, tang: 0, meteran: 0, toa: 0 };
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -645,8 +649,6 @@
           assetInput.select();
         }
       }
-
-      loadTables();
     }
 
     async function cariSpesifik() {
@@ -658,7 +660,7 @@
 
       const { data } = await supabaseClient
         .from('peminjaman')
-        .select('*')
+        .select('ops_id, no_asset, tgl_pinjam, status_transaksi, mother_team, group_team')
         .or(`ops_id.ilike.%${keyword}%,no_asset.ilike.%${keyword}%`)
         .order('tgl_pinjam', { ascending: false })
         .limit(15);
@@ -686,50 +688,60 @@
       `).join('');
     }
 
-    async function loadTables() {
+    // FUNGSI INIT MASTER DATA (CUMA DIPANGGIL 1 KALI PAS WEB DIBUKA)
+    async function initMasterData() {
       try {
         const [
-          { data: overdue }, 
-          { data: history }, 
-          { data: activeLoans }, 
-          { count: totalPdaCount }, 
-          { count: totalHtCount },
-          { count: totalTangCount },
-          { count: totalMeteranCount },
-          { count: totalToaCount },
-          { data: masterAllAssets },
-          { data: allPeminjaman }
+          { count: totalPda }, 
+          { count: totalHt },
+          { count: totalTang },
+          { count: totalMeteran },
+          { count: totalToa },
+          { data: masterAllAssets }
         ] = await Promise.all([
-          supabaseClient.from('view_peminjaman_overdue').select('*'),
-          supabaseClient.from('peminjaman').select('*').eq('status_transaksi', 'DIPINJAM').order('tgl_pinjam', { ascending: false }),
-          supabaseClient.from('peminjaman').select('no_asset, ops_id, tgl_pinjam, mother_team, group_team').eq('status_transaksi', 'DIPINJAM'),
-          
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%PDA%'),
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%HT%'),
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%TANG%'),
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%METERAN%'),
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%TOA%'),
+          supabaseClient.from('master_aset').select('no_asset, asset_id')
+        ]);
 
-          supabaseClient.from('master_aset').select('no_asset, asset_id').or('asset_id.ilike.%PDA%,asset_id.ilike.%HT%,asset_id.ilike.%TANG%,asset_id.ilike.%METERAN%,asset_id.ilike.%TOA%'),
+        CACHE_TOTAL_COUNTS = {
+          pda: totalPda || 0,
+          ht: totalHt || 0,
+          tang: totalTang || 0,
+          meteran: totalMeteran || 0,
+          toa: totalToa || 0
+        };
 
+        CACHE_MASTER_ASSETS = masterAllAssets || [];
+
+        document.getElementById('stat-pda-total').innerText = `Tot: ${CACHE_TOTAL_COUNTS.pda}`;
+        document.getElementById('stat-ht-total').innerText = `Tot: ${CACHE_TOTAL_COUNTS.ht}`;
+        document.getElementById('stat-tang-total').innerText = `Tot: ${CACHE_TOTAL_COUNTS.tang}`;
+        document.getElementById('stat-meteran-total').innerText = `Tot: ${CACHE_TOTAL_COUNTS.meteran}`;
+        document.getElementById('stat-toa-total').innerText = `Tot: ${CACHE_TOTAL_COUNTS.toa}`;
+      } catch (e) {
+        console.error("Gagal inisialisasi master data:", e);
+      }
+    }
+
+    // FUNGSI LOAD TABLES (SANGAT HEMAT BANDWIDTH)
+    async function loadTables() {
+      try {
+        const [
+          { data: overdue }, 
+          { data: activeLoans },
+          { data: allPeminjaman }
+        ] = await Promise.all([
+          supabaseClient.from('view_peminjaman_overdue').select('no_asset, ops_id, tgl_pinjam, durasi_jam, mother_team, group_team'),
+          supabaseClient.from('peminjaman').select('no_asset, ops_id, tgl_pinjam, mother_team, group_team').eq('status_transaksi', 'DIPINJAM').order('tgl_pinjam', { ascending: false }),
           supabaseClient.from('peminjaman').select('no_asset, ops_id, tgl_pinjam, status_transaksi')
         ]);
 
-        const totalPda = totalPdaCount || 0;
-        const totalHt = totalHtCount || 0;
-        const totalTang = totalTangCount || 0;
-        const totalMeteran = totalMeteranCount || 0;
-        const totalToa = totalToaCount || 0;
-
-        document.getElementById('stat-pda-total').innerText = `Tot: ${totalPda}`;
-        document.getElementById('stat-ht-total').innerText = `Tot: ${totalHt}`;
-        document.getElementById('stat-tang-total').innerText = `Tot: ${totalTang}`;
-        document.getElementById('stat-meteran-total').innerText = `Tot: ${totalMeteran}`;
-        document.getElementById('stat-toa-total').innerText = `Tot: ${totalToa}`;
-
         let allOpsIds = [];
         if (activeLoans) activeLoans.forEach(a => allOpsIds.push(a.ops_id));
-        if (history) history.forEach(h => allOpsIds.push(h.ops_id));
         if (overdue) overdue.forEach(o => allOpsIds.push(o.ops_id));
         if (allPeminjaman) allPeminjaman.forEach(p => allOpsIds.push(p.ops_id));
 
@@ -779,20 +791,13 @@
           `;
         }).join('');
 
-        // HIGHLIGHT STATS HITUNG DIPINJAM (FLOOR)
-        let pdaFloor = 0;
-        let htFloor = 0;
-        let tangFloor = 0;
-        let meteranFloor = 0;
-        let toaFloor = 0;
+        // HITUNG DIPINJAM (FLOOR) MENGGUNAKAN CACHE
+        let pdaFloor = 0, htFloor = 0, tangFloor = 0, meteranFloor = 0, toaFloor = 0;
+
+        let masterMap = {};
+        CACHE_MASTER_ASSETS.forEach(m => { masterMap[m.no_asset] = m.asset_id || ''; });
 
         if (activeLoans && activeLoans.length > 0) {
-          const activeAssetNos = activeLoans.map(a => a.no_asset);
-          const { data: masterData } = await supabaseClient.from('master_aset').select('no_asset, asset_id').in('no_asset', activeAssetNos);
-
-          let masterMap = {};
-          if (masterData) masterData.forEach(m => { masterMap[m.no_asset] = m.asset_id || ''; });
-
           activeLoans.forEach(item => {
             const noAsset = item.no_asset || '';
             const category = masterMap[noAsset] || '';
@@ -808,19 +813,19 @@
 
         // SET STATS DOM
         document.getElementById('stat-pda-floor').innerText = pdaFloor;
-        document.getElementById('stat-pda-standby').innerText = Math.max(0, totalPda - pdaFloor);
+        document.getElementById('stat-pda-standby').innerText = Math.max(0, CACHE_TOTAL_COUNTS.pda - pdaFloor);
 
         document.getElementById('stat-ht-floor').innerText = htFloor;
-        document.getElementById('stat-ht-standby').innerText = Math.max(0, totalHt - htFloor);
+        document.getElementById('stat-ht-standby').innerText = Math.max(0, CACHE_TOTAL_COUNTS.ht - htFloor);
 
         document.getElementById('stat-tang-floor').innerText = tangFloor;
-        document.getElementById('stat-tang-standby').innerText = Math.max(0, totalTang - tangFloor);
+        document.getElementById('stat-tang-standby').innerText = Math.max(0, CACHE_TOTAL_COUNTS.tang - tangFloor);
 
         document.getElementById('stat-meteran-floor').innerText = meteranFloor;
-        document.getElementById('stat-meteran-standby').innerText = Math.max(0, totalMeteran - meteranFloor);
+        document.getElementById('stat-meteran-standby').innerText = Math.max(0, CACHE_TOTAL_COUNTS.meteran - meteranFloor);
 
         document.getElementById('stat-toa-floor').innerText = toaFloor;
-        document.getElementById('stat-toa-standby').innerText = Math.max(0, totalToa - toaFloor);
+        document.getElementById('stat-toa-standby').innerText = Math.max(0, CACHE_TOTAL_COUNTS.toa - toaFloor);
 
         // TABEL OVERDUE (> 9 JAM)
         const overdueTbody = document.getElementById('table-overdue');
@@ -844,10 +849,10 @@
         // TABEL SEMUA ASET SEDANG DIPINJAM
         const historyTbody = document.getElementById('table-history');
         if (historyTbody) {
-          if (!history || history.length === 0) {
+          if (!activeLoans || activeLoans.length === 0) {
             historyTbody.innerHTML = '<tr><td colspan="4" class="p-3 text-slate-500 text-center">Tidak ada aset yang sedang dipinjam saat ini 🎉</td></tr>';
           } else {
-            historyTbody.innerHTML = history.map(i => {
+            historyTbody.innerHTML = activeLoans.map(i => {
               const jam = new Date(i.tgl_pinjam).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
               return `
@@ -866,15 +871,15 @@
           }
         }
 
-        // DASHBOARD UNSCANNED (TERMASUK PDA, HT, TANG, METERAN, TOA)
-        if (masterAllAssets && allPeminjaman) {
+        // DASHBOARD UNSCANNED
+        if (CACHE_MASTER_ASSETS && allPeminjaman) {
           const scannedAssetSet = new Set(
             allPeminjaman
               .map(t => t.no_asset ? String(t.no_asset).trim().toUpperCase() : '')
               .filter(Boolean)
           );
 
-          const unscannedAssets = masterAllAssets.filter(m => {
+          const unscannedAssets = CACHE_MASTER_ASSETS.filter(m => {
             const cleanNoAsset = m.no_asset ? String(m.no_asset).trim().toUpperCase() : '';
             return cleanNoAsset !== '' && !scannedAssetSet.has(cleanNoAsset);
           });
@@ -931,9 +936,34 @@
       }
     }
 
-    // INTERVAL 30 DETIK
-    setInterval(loadTables, 30000);
-    loadTables();
+    // SUPABASE REALTIME SUBSCRIPTION (ZERO-BANDWIDTH SAAT IDLE)
+    function setupRealtime() {
+      supabaseClient
+        .channel('realtime_peminjaman')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'peminjaman' }, () => {
+          console.log('⚡ Data transaksi berubah, merefresh tabel...');
+          loadTables();
+        })
+        .subscribe((status) => {
+          const connStatus = document.getElementById('status-koneksi');
+          if (status === 'SUBSCRIBED') {
+            connStatus.innerHTML = '● Realtime Active';
+            connStatus.className = 'px-2.5 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          } else {
+            connStatus.innerHTML = '○ Offline / Connecting';
+            connStatus.className = 'px-2.5 py-1 text-xs rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30';
+          }
+        });
+    }
+
+    // INITIALIZATION RUNNER
+    async function startApp() {
+      await initMasterData();
+      await loadTables();
+      setupRealtime();
+    }
+
+    startApp();
   </script>
 </body>
 </html>
