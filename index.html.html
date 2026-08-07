@@ -38,7 +38,7 @@
       </div>
     </div>
 
-    <!-- HIGHLIGHT STATS (TOTAL, FLOOR, STANDBY) -->
+    <!-- HIGHLIGHT STATS (BARIS 1: PDA & HT) -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       
       <!-- STATS PDA -->
@@ -73,6 +73,65 @@
           <div class="bg-slate-950/80 p-2.5 rounded-lg border border-emerald-500/30">
             <p class="text-[10px] text-emerald-400 font-bold uppercase">Standby (Tersedia)</p>
             <h3 id="stat-ht-standby" class="text-xl font-black text-emerald-400 font-mono mt-0.5">0 <span class="text-xs font-normal text-slate-400">Unit</span></h3>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- HIGHLIGHT STATS (BARIS 2: TANG, METERAN, TOA) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      
+      <!-- STATS TANG -->
+      <div class="bg-slate-900 border border-purple-500/30 rounded-xl p-4 shadow-lg space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <span class="text-xs font-extrabold text-purple-400 tracking-wider flex items-center gap-1.5">🛠️ TANG MONITORING</span>
+          <span id="stat-tang-total" class="text-[10px] bg-purple-500/10 text-purple-300 px-2 py-0.5 rounded border border-purple-500/20 font-mono">Total Stock: ...</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-center">
+          <div class="bg-slate-950/80 p-2.5 rounded-lg border border-slate-800">
+            <p class="text-[10px] text-slate-400 font-bold uppercase">Di Floor (Dipinjam)</p>
+            <h3 id="stat-tang-floor" class="text-xl font-black text-purple-400 font-mono mt-0.5">0 <span class="text-xs font-normal text-slate-400">Unit</span></h3>
+          </div>
+          <div class="bg-slate-950/80 p-2.5 rounded-lg border border-emerald-500/30">
+            <p class="text-[10px] text-emerald-400 font-bold uppercase">Standby (Tersedia)</p>
+            <h3 id="stat-tang-standby" class="text-xl font-black text-emerald-400 font-mono mt-0.5">0 <span class="text-xs font-normal text-slate-400">Unit</span></h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS METERAN -->
+      <div class="bg-slate-900 border border-teal-500/30 rounded-xl p-4 shadow-lg space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <span class="text-xs font-extrabold text-teal-400 tracking-wider flex items-center gap-1.5">📏 METERAN MONITORING</span>
+          <span id="stat-meteran-total" class="text-[10px] bg-teal-500/10 text-teal-300 px-2 py-0.5 rounded border border-teal-500/20 font-mono">Total Stock: ...</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-center">
+          <div class="bg-slate-950/80 p-2.5 rounded-lg border border-slate-800">
+            <p class="text-[10px] text-slate-400 font-bold uppercase">Di Floor (Dipinjam)</p>
+            <h3 id="stat-meteran-floor" class="text-xl font-black text-teal-400 font-mono mt-0.5">0 <span class="text-xs font-normal text-slate-400">Unit</span></h3>
+          </div>
+          <div class="bg-slate-950/80 p-2.5 rounded-lg border border-emerald-500/30">
+            <p class="text-[10px] text-emerald-400 font-bold uppercase">Standby (Tersedia)</p>
+            <h3 id="stat-meteran-standby" class="text-xl font-black text-emerald-400 font-mono mt-0.5">0 <span class="text-xs font-normal text-slate-400">Unit</span></h3>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS TOA -->
+      <div class="bg-slate-900 border border-yellow-500/30 rounded-xl p-4 shadow-lg space-y-3">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+          <span class="text-xs font-extrabold text-yellow-400 tracking-wider flex items-center gap-1.5">📢 TOA MONITORING</span>
+          <span id="stat-toa-total" class="text-[10px] bg-yellow-500/10 text-yellow-300 px-2 py-0.5 rounded border border-yellow-500/20 font-mono">Total Stock: ...</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2 text-center">
+          <div class="bg-slate-950/80 p-2.5 rounded-lg border border-slate-800">
+            <p class="text-[10px] text-slate-400 font-bold uppercase">Di Floor (Dipinjam)</p>
+            <h3 id="stat-toa-floor" class="text-xl font-black text-yellow-400 font-mono mt-0.5">0 <span class="text-xs font-normal text-slate-400">Unit</span></h3>
+          </div>
+          <div class="bg-slate-950/80 p-2.5 rounded-lg border border-emerald-500/30">
+            <p class="text-[10px] text-emerald-400 font-bold uppercase">Standby (Tersedia)</p>
+            <h3 id="stat-toa-standby" class="text-xl font-black text-emerald-400 font-mono mt-0.5">0 <span class="text-xs font-normal text-slate-400">Unit</span></h3>
           </div>
         </div>
       </div>
@@ -233,11 +292,11 @@
     <!-- POSISI BAWAH: UNSCANNED & OVERDUE > 1 MINGGU -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       
-      <!-- TABEL ASET PDA & HT UNSCANNED (TIDAK ADA DI TRANS / ADMIN) -->
+      <!-- TABEL ASET UNSCANNED (TIDAK ADA DI TRANS / ADMIN) -->
       <div class="bg-slate-900 p-5 rounded-xl border border-rose-500/40 shadow-xl flex flex-col">
         <div class="flex justify-between items-center mb-2">
           <h2 class="text-base font-bold text-rose-400 flex items-center gap-1.5">
-            ⚠️ Aset PDA/HT Tidak Di-Scan / Belum Pernah Transaksi
+            ⚠️ Aset Tidak Di-Scan / Belum Pernah Transaksi
           </h2>
           <span class="text-[10px] bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20 font-mono font-bold" id="count-unscanned">0 Unit</span>
         </div>
@@ -640,27 +699,38 @@
           { data: activeLoans }, 
           { count: totalPdaCount }, 
           { count: totalHtCount },
-          { data: masterPdaHt },
+          { count: totalTangCount },
+          { count: totalMeteranCount },
+          { count: totalToaCount },
+          { data: masterAllAssets },
           { data: allPeminjaman }
         ] = await Promise.all([
           supabaseClient.from('view_peminjaman_overdue').select('*'),
-          // TELAH DIUBAH: Menampilkan SELURUH aset yang sedang dipinjam (tanpa limit 50)
           supabaseClient.from('peminjaman').select('*').eq('status_transaksi', 'DIPINJAM').order('tgl_pinjam', { ascending: false }),
           supabaseClient.from('peminjaman').select('no_asset, ops_id, tgl_pinjam, mother_team, group_team').eq('status_transaksi', 'DIPINJAM'),
           
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%PDA%'),
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%HT%'),
+          supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%TANG%'),
+          supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%METERAN%'),
+          supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%TOA%'),
 
-          supabaseClient.from('master_aset').select('no_asset, asset_id').or('asset_id.ilike.%PDA%,asset_id.ilike.%HT%'),
+          supabaseClient.from('master_aset').select('no_asset, asset_id').or('asset_id.ilike.%PDA%,asset_id.ilike.%HT%,asset_id.ilike.%TANG%,asset_id.ilike.%METERAN%,asset_id.ilike.%TOA%'),
 
           supabaseClient.from('peminjaman').select('no_asset, ops_id, tgl_pinjam, status_transaksi')
         ]);
 
         const totalPda = totalPdaCount || 0;
         const totalHt = totalHtCount || 0;
+        const totalTang = totalTangCount || 0;
+        const totalMeteran = totalMeteranCount || 0;
+        const totalToa = totalToaCount || 0;
 
         document.getElementById('stat-pda-total').innerText = `Total Stock: ${totalPda}`;
         document.getElementById('stat-ht-total').innerText = `Total Stock: ${totalHt}`;
+        document.getElementById('stat-tang-total').innerText = `Total Stock: ${totalTang}`;
+        document.getElementById('stat-meteran-total').innerText = `Total Stock: ${totalMeteran}`;
+        document.getElementById('stat-toa-total').innerText = `Total Stock: ${totalToa}`;
 
         let allOpsIds = [];
         if (activeLoans) activeLoans.forEach(a => allOpsIds.push(a.ops_id));
@@ -714,9 +784,12 @@
           `;
         }).join('');
 
-        // HIGHLIGHT STATS
+        // HIGHLIGHT STATS HITUNG DIPINJAM (FLOOR)
         let pdaFloor = 0;
         let htFloor = 0;
+        let tangFloor = 0;
+        let meteranFloor = 0;
+        let toaFloor = 0;
 
         if (activeLoans && activeLoans.length > 0) {
           const activeAssetNos = activeLoans.map(a => a.no_asset);
@@ -732,14 +805,27 @@
 
             if (combinedString.includes('PDA')) pdaFloor++;
             else if (combinedString.includes('HT')) htFloor++;
+            else if (combinedString.includes('TANG')) tangFloor++;
+            else if (combinedString.includes('METERAN')) meteranFloor++;
+            else if (combinedString.includes('TOA')) toaFloor++;
           });
         }
 
+        // SET STATS DOM
         document.getElementById('stat-pda-floor').innerHTML = `${pdaFloor} <span class="text-xs font-normal text-slate-400">Unit</span>`;
         document.getElementById('stat-pda-standby').innerHTML = `${Math.max(0, totalPda - pdaFloor)} <span class="text-xs font-normal text-slate-400">Unit</span>`;
 
         document.getElementById('stat-ht-floor').innerHTML = `${htFloor} <span class="text-xs font-normal text-slate-400">Unit</span>`;
         document.getElementById('stat-ht-standby').innerHTML = `${Math.max(0, totalHt - htFloor)} <span class="text-xs font-normal text-slate-400">Unit</span>`;
+
+        document.getElementById('stat-tang-floor').innerHTML = `${tangFloor} <span class="text-xs font-normal text-slate-400">Unit</span>`;
+        document.getElementById('stat-tang-standby').innerHTML = `${Math.max(0, totalTang - tangFloor)} <span class="text-xs font-normal text-slate-400">Unit</span>`;
+
+        document.getElementById('stat-meteran-floor').innerHTML = `${meteranFloor} <span class="text-xs font-normal text-slate-400">Unit</span>`;
+        document.getElementById('stat-meteran-standby').innerHTML = `${Math.max(0, totalMeteran - meteranFloor)} <span class="text-xs font-normal text-slate-400">Unit</span>`;
+
+        document.getElementById('stat-toa-floor').innerHTML = `${toaFloor} <span class="text-xs font-normal text-slate-400">Unit</span>`;
+        document.getElementById('stat-toa-standby').innerHTML = `${Math.max(0, totalToa - toaFloor)} <span class="text-xs font-normal text-slate-400">Unit</span>`;
 
         // TABEL OVERDUE (> 9 JAM)
         const overdueTbody = document.getElementById('table-overdue');
@@ -785,15 +871,15 @@
           }
         }
 
-        // DASHBOARD UNSCANNED
-        if (masterPdaHt && allPeminjaman) {
+        // DASHBOARD UNSCANNED (TERMASUK PDA, HT, TANG, METERAN, TOA)
+        if (masterAllAssets && allPeminjaman) {
           const scannedAssetSet = new Set(
             allPeminjaman
               .map(t => t.no_asset ? String(t.no_asset).trim().toUpperCase() : '')
               .filter(Boolean)
           );
 
-          const unscannedAssets = masterPdaHt.filter(m => {
+          const unscannedAssets = masterAllAssets.filter(m => {
             const cleanNoAsset = m.no_asset ? String(m.no_asset).trim().toUpperCase() : '';
             return cleanNoAsset !== '' && !scannedAssetSet.has(cleanNoAsset);
           });
@@ -802,7 +888,7 @@
           const unscannedTbody = document.getElementById('table-unscanned');
 
           if (unscannedAssets.length === 0) {
-            unscannedTbody.innerHTML = '<tr><td colspan="3" class="p-3 text-emerald-400 text-center font-bold">Semua aset PDA & HT terdeteksi di admin 🎉</td></tr>';
+            unscannedTbody.innerHTML = '<tr><td colspan="3" class="p-3 text-emerald-400 text-center font-bold">Semua aset terdeteksi di admin 🎉</td></tr>';
           } else {
             unscannedTbody.innerHTML = unscannedAssets.map(item => `
               <tr class="hover:bg-slate-800/50 transition border-b border-slate-800/60">
@@ -850,7 +936,7 @@
       }
     }
 
-    // INTERVAL 30 DETIK BIKIN IRIT KUOTA SUPABASE
+    // INTERVAL 30 DETIK
     setInterval(loadTables, 30000);
     loadTables();
   </script>
