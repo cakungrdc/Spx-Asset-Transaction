@@ -44,7 +44,7 @@
       </div>
     </div>
 
-    <!-- HIGHLIGHT STATS (1 BARIS x 5 ITEM RINGKAS & SIMETRIS) -->
+    <!-- HIGHLIGHT STATS -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
       
       <!-- STATS PDA -->
@@ -139,7 +139,7 @@
 
     </div>
 
-    <!-- MONITORING KARTU AKSES (CARD-01 S/D CARD-11) -->
+    <!-- MONITORING KARTU AKSES -->
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-xl space-y-2">
       <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
         <h2 class="text-xs font-bold text-slate-200 flex items-center gap-2">
@@ -178,7 +178,7 @@
           <div>
             <label class="block text-[11px] text-slate-400 mb-1">2. SCAN NO ASET</label>
             <input type="text" id="pinjam-asset" 
-              class="w-full bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-lg p-2.5 text-xs text-white focus:outline-none transition font-mono"
+              class="w-full bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-lg p-2.5 text-xs text-white focus:outline-none transition font-mono uppercase"
               placeholder="Scan Barcode Asset..." autocomplete="off">
           </div>
 
@@ -208,7 +208,7 @@
           <div>
             <label class="block text-[11px] text-slate-400 mb-1">2. SCAN NO ASET</label>
             <input type="text" id="kembali-asset" 
-              class="w-full bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-lg p-2.5 text-xs text-white focus:outline-none transition font-mono"
+              class="w-full bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-lg p-2.5 text-xs text-white focus:outline-none transition font-mono uppercase"
               placeholder="Scan Barcode Asset..." autocomplete="off">
           </div>
 
@@ -312,7 +312,7 @@
     </div>
   </div>
 
-  <!-- MODAL FORM TAMBAH ASET BARU (UPDATED WITH SERIAL NUMBER) -->
+  <!-- MODAL FORM TAMBAH ASET BARU -->
   <div id="modal-add-asset" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 max-w-md w-full space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2">
@@ -359,11 +359,10 @@
   </div>
 
   <script>
-    const SUPABASE_URL = "https://jgjbmbhgaxxxdapjusxl.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnamJtYmhnYXh4eGRhcGp1c3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2OTc4MjUsImV4cCI6MjA5NzI3MzgyNX0.qJPY5efLbLrjEXexxXxeDpLKibeMTphmVoXgZzT6u2Y";
+    const SUPABASE_URL = "https://uoqtzbpzpxcbxqohdzlf.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcXR6YnB6cHhjYnhxb2hkemxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMjU3NDEsImV4cCI6MjEwMTcwMTc0MX0.6iPefaRArDzLw5HIZ_L4fXIAVf_RXXXLf5ZQT5EjdbM";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // PASSWORD ADMIN DEFAULT (SILAKAN UBAH SESUAI KEBUTUHAN)
     const ADMIN_PASSWORD = "1234";
 
     const pinjamOps = document.getElementById('pinjam-ops');
@@ -392,30 +391,32 @@
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playSound(type) {
-      if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      const now = audioCtx.currentTime;
+      try {
+        if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
 
-      if (type === 'success') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, now); 
-        osc.frequency.exponentialRampToValueAtTime(1760, now + 0.15); 
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
-        osc.start(now);
-        osc.stop(now + 0.3);
-      } else {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(160, now); 
-        osc.frequency.setValueAtTime(110, now + 0.15); 
-        gain.gain.setValueAtTime(0.4, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-        osc.start(now);
-        osc.stop(now + 0.4);
-      }
+        if (type === 'success') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now); 
+          osc.frequency.exponentialRampToValueAtTime(1760, now + 0.15); 
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(160, now); 
+          osc.frequency.setValueAtTime(110, now + 0.15); 
+          gain.gain.setValueAtTime(0.4, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        }
+      } catch(e){}
     }
 
     function isValidOpsFormat(str) {
@@ -426,7 +427,6 @@
       elem.classList.remove('border-rose-500', 'bg-rose-950/40');
     }
 
-    // PAKSA INPUT OPS JADI UPPERCASE SECARA REALTIME
     pinjamOps.addEventListener('input', () => { 
       pinjamOps.value = pinjamOps.value.toUpperCase();
       clearInputStyle(pinjamOps); 
@@ -439,10 +439,15 @@
       checkKembaliOpsPreview(); 
     });
 
-    pinjamAsset.addEventListener('input', () => clearInputStyle(pinjamAsset));
-    kembaliAsset.addEventListener('input', () => clearInputStyle(kembaliAsset));
+    pinjamAsset.addEventListener('input', () => {
+      pinjamAsset.value = pinjamAsset.value.toUpperCase();
+      clearInputStyle(pinjamAsset);
+    });
+    kembaliAsset.addEventListener('input', () => {
+      kembaliAsset.value = kembaliAsset.value.toUpperCase();
+      clearInputStyle(kembaliAsset);
+    });
 
-    // --- LOGIK MODAL & TAMBAH ASET ---
     document.getElementById('btn-open-add-asset').addEventListener('click', () => {
       inputAdminPass.value = '';
       authError.classList.add('hidden');
@@ -503,16 +508,13 @@
         return alert("Barcode / No Asset wajib diisi!");
       }
 
-      // Simpan Ke Supabase (master_aset)
-      const { data, error } = await supabaseClient
+      const { error } = await supabaseClient
         .from('master_aset')
-        .insert([
-          { 
-            no_asset: barcode, 
-            asset_id: assetCat, 
-            serial_number: serialNum || null
-          }
-        ]);
+        .insert({ 
+          no_asset: barcode, 
+          asset_id: assetCat, 
+          serial_number: serialNum || null
+        });
 
       if (error) {
         playSound('error');
@@ -541,7 +543,7 @@
         .from('master_ops')
         .select('nama, mother_team, group_team')
         .ilike('ops_id', opsId)
-        .single();
+        .maybeSingle();
 
       if (data) {
         const teamInfo = [data.mother_team, data.group_team].filter(Boolean).join(' / ') || 'Tidak ada tim';
@@ -569,7 +571,7 @@
         .from('master_ops')
         .select('nama, mother_team, group_team')
         .ilike('ops_id', opsId)
-        .single();
+        .maybeSingle();
 
       const namaDisplay = masterData ? masterData.nama : opsId;
       const teamDisplay = masterData ? [masterData.mother_team, masterData.group_team].filter(Boolean).join(' / ') : '';
@@ -720,7 +722,7 @@
       const previewElem = isPinjam ? previewPinjamOps : previewKembaliOps;
 
       const opsId = opsInput.value.trim().toUpperCase();
-      const noAsset = assetInput.value.trim();
+      const noAsset = assetInput.value.trim().toUpperCase();
 
       clearInputStyle(opsInput);
       clearInputStyle(assetInput);
@@ -741,7 +743,7 @@
         return;
       }
 
-      if (isValidOpsFormat(noAsset) || noAsset.toUpperCase().startsWith('OPS')) {
+      if (isValidOpsFormat(noAsset) || noAsset.startsWith('OPS')) {
         playSound('error');
         assetInput.classList.add('border-rose-500', 'bg-rose-950/40');
         showAlert(`🚨 MIS-SCAN! Kolom No Asset tertembak OPS ID (${noAsset}). Harap scan barcode aset!`, false);
@@ -751,23 +753,32 @@
       }
 
       const rpcName = isPinjam ? 'spx_proses_pinjam' : 'spx_proses_kembali';
-      const { data, error } = await supabaseClient.rpc(rpcName, { p_ops_id: opsId, p_no_asset: noAsset });
+      
+      const { data, error } = await supabaseClient.rpc(rpcName, { 
+        p_ops_id: opsId, 
+        p_no_asset: noAsset 
+      });
 
       if (error) {
         playSound('error');
         assetInput.classList.add('border-rose-500', 'bg-rose-950/40');
         showAlert(`Error: ${error.message}`, false);
         assetInput.select();
-      } else if (data && data.length > 0) {
-        const result = data[0];
-        showAlert(result.message, result.success);
+      } else if (data) {
+        // Handle return RPC baik dalam bentuk Array maupun Object
+        const result = Array.isArray(data) ? data[0] : data;
+        const success = result.success !== undefined ? result.success : true;
+        const message = result.message || (isPinjam ? "Berhasil dipinjam" : "Berhasil dikembalikan");
 
-        if (result.success) {
+        showAlert(message, success);
+
+        if (success) {
           playSound('success');
           opsInput.value = '';
           assetInput.value = '';
           previewElem.classList.add('hidden');
           opsInput.focus();
+          loadTables();
         } else {
           playSound('error');
           assetInput.classList.add('border-rose-500', 'bg-rose-950/40');
@@ -1000,7 +1011,6 @@
       supabaseClient
         .channel('realtime_peminjaman')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'peminjaman' }, () => {
-          console.log('⚡ Data transaksi berubah, merefresh tabel...');
           loadTables();
         })
         .subscribe((status) => {
