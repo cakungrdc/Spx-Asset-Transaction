@@ -26,18 +26,14 @@
   <div class="max-w-7xl mx-auto space-y-4">
     
     <!-- HEADER -->
-    <div class="flex justify-between items-center border-b border-orange-500/30 pb-3 flex-wrap gap-2">
+    <div class="flex justify-between items-center border-b border-orange-500/30 pb-3">
       <div>
         <h1 class="text-2xl font-extrabold text-orange-500 tracking-wide flex items-center gap-2">
           🚚 SPX ASSET TRANSACTION <span class="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded border border-orange-500/30">Card Access Guard 💳</span>
         </h1>
         <p class="text-xs text-slate-400">Peminjaman Bebas OPS & Pengembalian Presisi</p>
       </div>
-      <div class="flex items-center gap-2">
-        <!-- TOMBOL AUDIT ASET IDLE -->
-        <button id="btn-open-unused-assets" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-400 border border-amber-500/40 transition shadow flex items-center gap-1">
-          🔍 Aset Idle (0 Transaksi)
-        </button>
+      <div class="flex items-center gap-3">
         <!-- TOMBOL TAMBAH ASET BARU -->
         <button id="btn-open-add-asset" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition shadow border border-orange-400/30 flex items-center gap-1">
           ➕ Tambah Aset
@@ -296,40 +292,6 @@
 
   </div>
 
-  <!-- MODAL AUDIT ASET IDLE / TIDAK PERNAH DIPINJAM -->
-  <div id="modal-unused-assets" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-amber-500/40 rounded-xl p-5 max-w-2xl w-full space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-        <div>
-          <h3 class="text-sm font-bold text-amber-400 flex items-center gap-2">⚠️ Daftar Aset Tidak Pernah Dipakai</h3>
-          <p class="text-[10px] text-slate-400">Terdaftar di Master tetapi 0 riwayat transaksi peminjaman di sistem</p>
-        </div>
-        <button id="btn-close-unused-modal" class="text-slate-400 hover:text-slate-200 text-sm font-bold">✕</button>
-      </div>
-
-      <div class="overflow-x-auto overflow-y-auto max-h-[350px] custom-scrollbar pr-1">
-        <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
-          <thead class="sticky top-0 bg-slate-900 text-slate-400 border-b border-slate-800 font-semibold">
-            <tr>
-              <th class="pb-2 pr-3">No Asset / Barcode</th>
-              <th class="pb-2 pr-3">Kategori</th>
-              <th class="pb-2 pr-3">Serial Number</th>
-              <th class="pb-2">Status Audit</th>
-            </tr>
-          </thead>
-          <tbody id="table-unused-assets" class="divide-y divide-slate-800">
-            <tr><td colspan="4" class="p-3 text-slate-500 text-center">Memuat data...</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="flex justify-between items-center border-t border-slate-800 pt-3">
-        <span id="count-unused-assets" class="text-[11px] font-mono text-amber-400 font-bold">Total Idle: 0 Unit</span>
-        <button id="btn-close-unused-btn" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg font-bold">Tutup</button>
-      </div>
-    </div>
-  </div>
-
   <!-- MODAL PROTEKSI PASSWORD ADMIN -->
   <div id="modal-auth" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-orange-500/40 rounded-xl p-5 max-w-sm w-full space-y-4 shadow-2xl">
@@ -398,7 +360,7 @@
 
   <script>
     const SUPABASE_URL = "https://uoqtzbpzpxcbxqohdzlf.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInRefiI6InVvcXR6YnB6cHhjYnhxb2hkemxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMjU3NDEsImV4cCI6MjEwMTcwMTc0MX0.6iPefaRArDzLw5HIZ_L4fXIAVf_RXXXLf5ZQT5EjdbM";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVvcXR6YnB6cHhjYnhxb2hkemxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMjU3NDEsImV4cCI6MjEwMTcwMTc0MX0.6iPefaRArDzLw5HIZ_L4fXIAVf_RXXXLf5ZQT5EjdbM";
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const ADMIN_PASSWORD = "1234";
@@ -414,7 +376,6 @@
 
     const modalAuth = document.getElementById('modal-auth');
     const modalAddAsset = document.getElementById('modal-add-asset');
-    const modalUnusedAssets = document.getElementById('modal-unused-assets');
     const inputAdminPass = document.getElementById('input-admin-pass');
     const authError = document.getElementById('auth-error');
 
@@ -486,57 +447,6 @@
       kembaliAsset.value = kembaliAsset.value.toUpperCase();
       clearInputStyle(kembaliAsset);
     });
-
-    // EVENT LISTENERS MODAL ASET IDLE
-    document.getElementById('btn-open-unused-assets').addEventListener('click', loadUnusedAssets);
-    document.getElementById('btn-close-unused-modal').addEventListener('click', () => modalUnusedAssets.classList.add('hidden'));
-    document.getElementById('btn-close-unused-btn').addEventListener('click', () => modalUnusedAssets.classList.add('hidden'));
-
-    async function loadUnusedAssets() {
-      modalUnusedAssets.classList.remove('hidden');
-      modalUnusedAssets.classList.add('flex');
-      
-      const tbody = document.getElementById('table-unused-assets');
-      const countElem = document.getElementById('count-unused-assets');
-      tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-slate-500 text-center">Memuat data audit...</td></tr>';
-
-      // Ambil dari VIEW SQL jika ada, atau pencocokan via Client Side JS (Sangat Hemat Egress)
-      const [{ data: masterAset }, { data: allLoans }] = await Promise.all([
-        supabaseClient.from('master_aset').select('no_asset, asset_id, serial_number'),
-        supabaseClient.from('peminjaman').select('no_asset')
-      ]);
-
-      if (!masterAset) {
-        tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-rose-400 text-center">Gagal memuat data master aset</td></tr>';
-        return;
-      }
-
-      // Filter Unik Aset yang PERNAH Transaksi
-      const usedSet = new Set((allLoans || []).map(l => (l.no_asset || '').toUpperCase().trim()));
-
-      // Filter Aset Master yang 0 Transaksi
-      const unusedList = masterAset.filter(m => !usedSet.has((m.no_asset || '').toUpperCase().trim()));
-
-      countElem.innerText = `Total Idle: ${unusedList.length} Unit`;
-
-      if (unusedList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-emerald-400 text-center">🎉 Semua aset terdaftar pernah digunakan minimal 1x!</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = unusedList.map(item => `
-        <tr class="hover:bg-slate-800/50">
-          <td class="p-2 font-bold text-amber-400 font-mono">${item.no_asset}</td>
-          <td class="p-2 text-slate-300">${item.asset_id || '-'}</td>
-          <td class="p-2 font-mono text-slate-400">${item.serial_number || '-'}</td>
-          <td class="p-2">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              ⚠️ Need Physical Audit
-            </span>
-          </td>
-        </tr>
-      `).join('');
-    }
 
     document.getElementById('btn-open-add-asset').addEventListener('click', () => {
       inputAdminPass.value = '';
@@ -855,6 +765,7 @@
         showAlert(`Error: ${error.message}`, false);
         assetInput.select();
       } else if (data) {
+        // Handle return RPC baik dalam bentuk Array maupun Object
         const result = Array.isArray(data) ? data[0] : data;
         const success = result.success !== undefined ? result.success : true;
         const message = result.message || (isPinjam ? "Berhasil dipinjam" : "Berhasil dikembalikan");
