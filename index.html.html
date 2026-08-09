@@ -38,8 +38,8 @@
         <button id="btn-open-add-asset" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition shadow border border-orange-400/30 flex items-center gap-1">
           ➕ Tambah Aset
         </button>
-        <div id="status-koneksi" class="px-2.5 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-          ● Realtime Active
+        <div id="status-koneksi" class="px-2.5 py-1 text-xs rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30">
+          ○ Connecting...
         </div>
       </div>
     </div>
@@ -765,7 +765,6 @@
         showAlert(`Error: ${error.message}`, false);
         assetInput.select();
       } else if (data) {
-        // Handle return RPC baik dalam bentuk Array maupun Object
         const result = Array.isArray(data) ? data[0] : data;
         const success = result.success !== undefined ? result.success : true;
         const message = result.message || (isPinjam ? "Berhasil dipinjam" : "Berhasil dikembalikan");
@@ -866,12 +865,15 @@
     async function loadTables() {
       try {
         const [
-          { data: overdue }, 
-          { data: activeLoans }
+          { data: overdue, error: errOverdue }, 
+          { data: activeLoans, error: errActive }
         ] = await Promise.all([
           supabaseClient.from('view_peminjaman_overdue').select('no_asset, ops_id, tgl_pinjam, durasi_jam, mother_team, group_team'),
           supabaseClient.from('peminjaman').select('no_asset, ops_id, tgl_pinjam, mother_team, group_team').eq('status_transaksi', 'DIPINJAM').order('tgl_pinjam', { ascending: false })
         ]);
+
+        if (errOverdue) console.error("Error Overdue Query:", errOverdue.message);
+        if (errActive) console.error("Error Active Loans Query:", errActive.message);
 
         let allOpsIds = [];
         if (activeLoans) activeLoans.forEach(a => allOpsIds.push(a.ops_id));
@@ -1026,9 +1028,9 @@
     }
 
     async function startApp() {
+      setupRealtime();
       await initMasterData();
       await loadTables();
-      setupRealtime();
     }
 
     startApp();
