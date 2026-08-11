@@ -224,10 +224,10 @@
     <!-- POSISI TENGAH: TABEL OVERDUE & SEMUA ASET SEDANG DIPINJAM -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
       
-      <!-- TABEL OVERDUE -->
+      <!-- TABEL OVERDUE (DIBATASI MAKSIMAL 10 ASET UNTUK HEMAT EGRESS) -->
       <div class="lg:col-span-6 bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-xl flex flex-col">
         <div class="flex justify-between items-center mb-2">
-          <h2 class="text-sm font-bold text-rose-400 flex items-center gap-1.5">🚨 Overdue (> 9 Jam)</h2>
+          <h2 class="text-sm font-bold text-rose-400 flex items-center gap-1.5">🚨 Overdue (> 9 Jam) <span class="text-[9px] text-slate-500 font-normal">(Max 10 Terlama)</span></h2>
           <span class="text-[10px] text-slate-500">Scroll ↓</span>
         </div>
         <div class="overflow-x-auto overflow-y-auto max-h-[300px] custom-scrollbar pr-1">
@@ -247,7 +247,7 @@
         </div>
       </div>
 
-      <!-- TABEL SEMUA ASET SEDANG DIPINJAM -->
+      <!-- TABEL SEMUA ASET SEDANG DIPINJAM (100% LENGKAP TANPA LIMIT) -->
       <div class="lg:col-span-6 bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-xl flex flex-col">
         <div class="flex justify-between items-center mb-2">
           <h2 class="text-sm font-bold text-slate-200">📦 Semua Aset Sedang Dipinjam</h2>
@@ -868,8 +868,18 @@
           { data: overdue, error: errOverdue }, 
           { data: activeLoans, error: errActive }
         ] = await Promise.all([
-          supabaseClient.from('view_peminjaman_overdue').select('no_asset, ops_id, tgl_pinjam, durasi_jam, mother_team, group_team'),
-          supabaseClient.from('peminjaman').select('no_asset, ops_id, tgl_pinjam, mother_team, group_team').eq('status_transaksi', 'DIPINJAM').order('tgl_pinjam', { ascending: false })
+          // TABEL OVERDUE DIBATASI HANYA 10 ASET UNTUK HEMAT EGRESS
+          supabaseClient
+            .from('view_peminjaman_overdue')
+            .select('no_asset, ops_id, tgl_pinjam, durasi_jam, mother_team, group_team')
+            .limit(10),
+
+          // TABEL SEDANG DIPINJAM TETAP 100% KELUAR SEMUA (TANPA LIMIT)
+          supabaseClient
+            .from('peminjaman')
+            .select('no_asset, ops_id, tgl_pinjam, mother_team, group_team')
+            .eq('status_transaksi', 'DIPINJAM')
+            .order('tgl_pinjam', { ascending: false })
         ]);
 
         if (errOverdue) console.error("Error Overdue Query:", errOverdue.message);
@@ -960,7 +970,7 @@
         document.getElementById('stat-toa-floor').innerText = toaFloor;
         document.getElementById('stat-toa-standby').innerText = Math.max(0, CACHE_TOTAL_COUNTS.toa - toaFloor);
 
-        // TABEL OVERDUE (> 9 JAM)
+        // TABEL OVERDUE (> 9 JAM) - HANYA RENDERING MAX 10 ASET
         const overdueTbody = document.getElementById('table-overdue');
         if (overdueTbody) {
           overdueTbody.innerHTML = (overdue && overdue.length) ? overdue.map(i => {
@@ -979,7 +989,7 @@
           }).join('') : '<tr><td colspan="4" class="p-3 text-slate-500 text-center">Tidak ada transaksi overdue 🎉</td></tr>';
         }
 
-        // TABEL SEMUA ASET SEDANG DIPINJAM
+        // TABEL SEMUA ASET SEDANG DIPINJAM - RENDER SEMUA ASET
         const historyTbody = document.getElementById('table-history');
         if (historyTbody) {
           if (!activeLoans || activeLoans.length === 0) {
