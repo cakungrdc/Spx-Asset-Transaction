@@ -3,22 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SPX ASSET TRANSACTION - Dynamic OPS Mode</title>
+  <title>SPX ASSET TRANSACTION - Ultra Low Bandwidth</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
     
     @keyframes pulse-slow {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.6; }
     }
-    .animate-overdue {
-      animation: pulse-slow 1.5s infinite;
-    }
+    .animate-overdue { animation: pulse-slow 1.5s infinite; }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen p-4 font-sans">
@@ -29,12 +26,11 @@
     <div class="flex justify-between items-center border-b border-orange-500/30 pb-3">
       <div>
         <h1 class="text-2xl font-extrabold text-orange-500 tracking-wide flex items-center gap-2">
-          🚚 SPX ASSET TRANSACTION <span class="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded border border-orange-500/30">Card Access Guard 💳</span>
+          🚚 SPX ASSET TRANSACTION <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">⚡ Mode Hemat Bandwidth</span>
         </h1>
-        <p class="text-xs text-slate-400">Peminjaman Bebas OPS & Pengembalian Presisi</p>
+        <p class="text-xs text-slate-400">Peminjaman & Pengembalian Presisi (Optimized)</p>
       </div>
       <div class="flex items-center gap-3">
-        <!-- TOMBOL TAMBAH ASET BARU -->
         <button id="btn-open-add-asset" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition shadow border border-orange-400/30 flex items-center gap-1">
           ➕ Tambah Aset
         </button>
@@ -46,11 +42,9 @@
 
     <!-- HIGHLIGHT STATS -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-      
-      <!-- STATS PDA -->
       <div class="bg-slate-900 border border-orange-500/30 rounded-lg p-2.5 shadow space-y-1.5 flex flex-col justify-between">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
-          <span class="text-[11px] font-bold text-orange-400 flex items-center gap-1">📱 PDA</span>
+          <span class="text-[11px] font-bold text-orange-400">📱 PDA</span>
           <span id="stat-pda-total" class="text-[9px] bg-orange-500/10 text-orange-300 px-1.5 py-0.2 rounded border border-orange-500/20 font-mono">Tot: ...</span>
         </div>
         <div class="grid grid-cols-2 gap-1.5 text-center">
@@ -65,10 +59,9 @@
         </div>
       </div>
 
-      <!-- STATS HT -->
       <div class="bg-slate-900 border border-sky-500/30 rounded-lg p-2.5 shadow space-y-1.5 flex flex-col justify-between">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
-          <span class="text-[11px] font-bold text-sky-400 flex items-center gap-1">📻 HT</span>
+          <span class="text-[11px] font-bold text-sky-400">📻 HT</span>
           <span id="stat-ht-total" class="text-[9px] bg-sky-500/10 text-sky-300 px-1.5 py-0.2 rounded border border-sky-500/20 font-mono">Tot: ...</span>
         </div>
         <div class="grid grid-cols-2 gap-1.5 text-center">
@@ -83,10 +76,9 @@
         </div>
       </div>
 
-      <!-- STATS TANG -->
       <div class="bg-slate-900 border border-purple-500/30 rounded-lg p-2.5 shadow space-y-1.5 flex flex-col justify-between">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
-          <span class="text-[11px] font-bold text-purple-400 flex items-center gap-1">🛠️ TANG</span>
+          <span class="text-[11px] font-bold text-purple-400">🛠️ TANG</span>
           <span id="stat-tang-total" class="text-[9px] bg-purple-500/10 text-purple-300 px-1.5 py-0.2 rounded border border-purple-500/20 font-mono">Tot: ...</span>
         </div>
         <div class="grid grid-cols-2 gap-1.5 text-center">
@@ -101,10 +93,9 @@
         </div>
       </div>
 
-      <!-- STATS METERAN -->
       <div class="bg-slate-900 border border-teal-500/30 rounded-lg p-2.5 shadow space-y-1.5 flex flex-col justify-between">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
-          <span class="text-[11px] font-bold text-teal-400 flex items-center gap-1">📏 METERAN</span>
+          <span class="text-[11px] font-bold text-teal-400">📏 METERAN</span>
           <span id="stat-meteran-total" class="text-[9px] bg-teal-500/10 text-teal-300 px-1.5 py-0.2 rounded border border-teal-500/20 font-mono">Tot: ...</span>
         </div>
         <div class="grid grid-cols-2 gap-1.5 text-center">
@@ -119,10 +110,9 @@
         </div>
       </div>
 
-      <!-- STATS TOA -->
       <div class="bg-slate-900 border border-yellow-500/30 rounded-lg p-2.5 shadow space-y-1.5 flex flex-col justify-between">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
-          <span class="text-[11px] font-bold text-yellow-400 flex items-center gap-1">📢 TOA</span>
+          <span class="text-[11px] font-bold text-yellow-400">📢 TOA</span>
           <span id="stat-toa-total" class="text-[9px] bg-yellow-500/10 text-yellow-300 px-1.5 py-0.2 rounded border border-yellow-500/20 font-mono">Tot: ...</span>
         </div>
         <div class="grid grid-cols-2 gap-1.5 text-center">
@@ -136,7 +126,6 @@
           </div>
         </div>
       </div>
-
     </div>
 
     <!-- MONITORING KARTU AKSES -->
@@ -147,19 +136,13 @@
         </h2>
         <span class="text-[10px] text-slate-400">Realtime Tracker</span>
       </div>
-
-      <div id="grid-cards" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 gap-2">
-        <!-- Render otomatis via JS -->
-      </div>
+      <div id="grid-cards" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 gap-2"></div>
     </div>
 
-    <!-- NOTIFIKASI GLOBAL -->
     <div id="alert-box" class="hidden p-3 rounded-xl text-xs font-semibold transition-all shadow-lg"></div>
 
     <!-- WORKFLOW DUAL MODE -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      
-      <!-- FORM PEMINJAMAN -->
       <div class="bg-slate-900 p-4 rounded-xl border border-orange-500/40 shadow-xl space-y-3">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
           <h2 class="text-sm font-bold text-orange-400">📤 FORM PEMINJAMAN ASET</h2>
@@ -168,7 +151,7 @@
 
         <div class="space-y-2.5">
           <div>
-            <label class="block text-[11px] text-slate-400 mb-1">1. SCAN OPS ID (Wajib Format: OPS + Angka)</label>
+            <label class="block text-[11px] text-slate-400 mb-1">1. SCAN OPS ID (OPS + Angka)</label>
             <input type="text" id="pinjam-ops" autofocus
               class="w-full bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-lg p-2.5 text-xs text-white focus:outline-none transition font-mono uppercase"
               placeholder="Contoh: OPS123 / OPS-001" autocomplete="off">
@@ -182,14 +165,12 @@
               placeholder="Scan Barcode Asset..." autocomplete="off">
           </div>
 
-          <button id="btn-pinjam" 
-            class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 text-xs rounded-lg transition shadow-lg shadow-orange-600/30">
+          <button id="btn-pinjam" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2.5 text-xs rounded-lg transition shadow-lg shadow-orange-600/30">
             Proses Pinjam Asset
           </button>
         </div>
       </div>
 
-      <!-- FORM PENGEMBALIAN -->
       <div class="bg-slate-900 p-4 rounded-xl border border-sky-500/40 shadow-xl space-y-3">
         <div class="flex items-center justify-between border-b border-slate-800 pb-2">
           <h2 class="text-sm font-bold text-sky-400">📥 FORM PENGEMBALIAN ASET</h2>
@@ -198,7 +179,7 @@
 
         <div class="space-y-2.5">
           <div>
-            <label class="block text-[11px] text-slate-400 mb-1">1. SCAN OPS ID PENGEMBALI (OPS + Angka)</label>
+            <label class="block text-[11px] text-slate-400 mb-1">1. SCAN OPS ID PENGEMBALI</label>
             <input type="text" id="kembali-ops" 
               class="w-full bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-lg p-2.5 text-xs text-white focus:outline-none transition font-mono uppercase"
               placeholder="Contoh: OPS123 / OPS-001" autocomplete="off">
@@ -212,23 +193,20 @@
               placeholder="Scan Barcode Asset..." autocomplete="off">
           </div>
 
-          <button id="btn-kembali" 
-            class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 text-xs rounded-lg transition shadow-lg shadow-sky-600/30">
+          <button id="btn-kembali" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-bold py-2.5 text-xs rounded-lg transition shadow-lg shadow-sky-600/30">
             Proses Kembalikan Asset
           </button>
         </div>
       </div>
-
     </div>
 
-    <!-- POSISI TENGAH: TABEL OVERDUE & SEMUA ASET SEDANG DIPINJAM -->
+    <!-- TABEL OVERDUE & ASET SEDANG DIPINJAM (DIBATASI BIAR HEMAT) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
       
-      <!-- TABEL OVERDUE (DIBATASI MAKSIMAL 10 ASET UNTUK HEMAT EGRESS) -->
+      <!-- TABEL OVERDUE (MAX 10) -->
       <div class="lg:col-span-6 bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-xl flex flex-col">
         <div class="flex justify-between items-center mb-2">
-          <h2 class="text-sm font-bold text-rose-400 flex items-center gap-1.5">🚨 Overdue (> 9 Jam) <span class="text-[9px] text-slate-500 font-normal">(Max 10 Terlama)</span></h2>
-          <span class="text-[10px] text-slate-500">Scroll ↓</span>
+          <h2 class="text-sm font-bold text-rose-400 flex items-center gap-1.5">🚨 Overdue (> 9 Jam) <span class="text-[9px] text-slate-500 font-normal">(Max 10)</span></h2>
         </div>
         <div class="overflow-x-auto overflow-y-auto max-h-[300px] custom-scrollbar pr-1">
           <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
@@ -247,17 +225,16 @@
         </div>
       </div>
 
-      <!-- TABEL SEMUA ASET SEDANG DIPINJAM (100% LENGKAP TANPA LIMIT) -->
+      <!-- TABEL ASET DIPINJAM (DIBATASI MAKSIMAL 50 UTK HEMAT BANDWIDTH) -->
       <div class="lg:col-span-6 bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-xl flex flex-col">
         <div class="flex justify-between items-center mb-2">
-          <h2 class="text-sm font-bold text-slate-200">📦 Semua Aset Sedang Dipinjam</h2>
-          <span class="text-[10px] text-slate-500">Scroll ↓</span>
+          <h2 class="text-sm font-bold text-slate-200">📦 Aset Sedang Dipinjam <span class="text-[9px] text-amber-400 font-normal">(Max 50 Terbaru)</span></h2>
         </div>
         <div class="overflow-x-auto overflow-y-auto max-h-[300px] custom-scrollbar pr-1">
           <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
             <thead class="sticky top-0 bg-slate-900 text-slate-400 border-b border-slate-800 font-semibold">
               <tr>
-                <th class="pb-2 pr-3">Waktu Pinjam</th>
+                <th class="pb-2 pr-3">Waktu</th>
                 <th class="pb-2 pr-3">No Asset</th>
                 <th class="pb-2 pr-3">Peminjam / Team</th>
                 <th class="pb-2">Status</th>
@@ -292,17 +269,17 @@
 
   </div>
 
-  <!-- MODAL PROTEKSI PASSWORD ADMIN -->
+  <!-- MODAL AUTH -->
   <div id="modal-auth" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-orange-500/40 rounded-xl p-5 max-w-sm w-full space-y-4 shadow-2xl">
       <div class="text-center">
         <h3 class="text-sm font-bold text-orange-400">🔒 Verifikasi Password Admin</h3>
-        <p class="text-[10px] text-slate-400 mt-0.5">Masukkan PIN/Password untuk pendaftaran aset baru</p>
+        <p class="text-[10px] text-slate-400 mt-0.5">Masukkan Password untuk pendaftaran aset</p>
       </div>
       <div>
         <input type="password" id="input-admin-pass" 
           class="w-full bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-lg p-2.5 text-center text-sm font-mono text-white focus:outline-none" 
-          placeholder="Password Admin (Default: 1234)">
+          placeholder="Password Admin (1234)">
         <p id="auth-error" class="text-[10px] text-rose-400 text-center mt-1 hidden">Password Salah!</p>
       </div>
       <div class="flex gap-2">
@@ -312,7 +289,7 @@
     </div>
   </div>
 
-  <!-- MODAL FORM TAMBAH ASET BARU -->
+  <!-- MODAL ADD ASET -->
   <div id="modal-add-asset" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 max-w-md w-full space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2">
@@ -329,7 +306,7 @@
         </div>
 
         <div>
-          <label class="block text-[10px] text-slate-400 mb-1">KATEGORI / TIPE ASET *</label>
+          <label class="block text-[10px] text-slate-400 mb-1">KATEGORI *</label>
           <select id="new-asset-id" class="w-full bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-lg p-2.5 text-xs text-white focus:outline-none">
             <option value="PDA">📱 PDA</option>
             <option value="HT">📻 HT</option>
@@ -342,7 +319,7 @@
         </div>
 
         <div>
-          <label class="block text-[10px] text-slate-400 mb-1">SERIAL NUMBER (SN) ASET</label>
+          <label class="block text-[10px] text-slate-400 mb-1">SERIAL NUMBER (SN)</label>
           <input type="text" id="new-sn-asset" 
             class="w-full bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-lg p-2.5 text-xs text-white font-mono uppercase focus:outline-none" 
             placeholder="Contoh: SN-TC26X12345678" autocomplete="off">
@@ -488,13 +465,8 @@
     document.getElementById('btn-close-modal').addEventListener('click', closeModalAddAsset);
     document.getElementById('btn-cancel-add').addEventListener('click', closeModalAddAsset);
 
-    newNoAsset.addEventListener('input', () => {
-      newNoAsset.value = newNoAsset.value.toUpperCase();
-    });
-
-    newSnAsset.addEventListener('input', () => {
-      newSnAsset.value = newSnAsset.value.toUpperCase();
-    });
+    newNoAsset.addEventListener('input', () => { newNoAsset.value = newNoAsset.value.toUpperCase(); });
+    newSnAsset.addEventListener('input', () => { newSnAsset.value = newSnAsset.value.toUpperCase(); });
 
     document.getElementById('btn-save-asset').addEventListener('click', saveNewAsset);
 
@@ -519,13 +491,13 @@
       if (error) {
         playSound('error');
         if (error.code === '23505') {
-          alert(`❌ Gagal: No Aset '${barcode}' sudah terdaftar di database!`);
+          alert(`❌ Gagal: No Aset '${barcode}' sudah terdaftar!`);
         } else {
           alert(`❌ Error: ${error.message}`);
         }
       } else {
         playSound('success');
-        showAlert(`🎉 Berhasil mendaftarkan Aset Baru: ${barcode} ${serialNum ? `(SN: ${serialNum})` : ''}`, true);
+        showAlert(`🎉 Berhasil mendaftarkan Aset Baru: ${barcode}`, true);
         closeModalAddAsset();
         await initMasterData();
         await loadTables();
@@ -601,16 +573,14 @@
             ${teamDisplay ? `<span class="text-[10px] text-sky-300 bg-sky-500/10 px-1.5 py-0.5 rounded border border-sky-500/20">🏷️ ${teamDisplay}</span>` : ''}
           </div>
           <div class="text-[10px] text-slate-400 font-semibold mb-1">Aset Yang Belum Dikembalikan (${activeLoans.length} Unit):</div>
-          <div class="flex flex-wrap gap-1">
-            ${assetBadges}
-          </div>
+          <div class="flex flex-wrap gap-1">${assetBadges}</div>
         `;
         previewKembaliOps.classList.remove('hidden');
       } else {
         previewKembaliOps.innerHTML = `
           <div class="flex items-center justify-between text-amber-400">
             <span>👤 <strong>${namaDisplay}</strong> (${opsId})</span>
-            <span class="text-[10px] bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">ℹ️ Tidak ada aset yang sedang dipinjam</span>
+            <span class="text-[10px] bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">ℹ️ Tidak ada aset dipinjam</span>
           </div>
         `;
         previewKembaliOps.classList.remove('hidden');
@@ -623,7 +593,7 @@
         if (!isValidOpsFormat(pinjamOps.value.trim())) {
           playSound('error');
           pinjamOps.classList.add('border-rose-500', 'bg-rose-950/40');
-          showAlert("Format OPS ID Salah! Harus diawali 'OPS' + angka", false);
+          showAlert("Format OPS ID Salah!", false);
           pinjamOps.select();
           return;
         }
@@ -642,7 +612,7 @@
         if (!isValidOpsFormat(kembaliOps.value.trim())) {
           playSound('error');
           kembaliOps.classList.add('border-rose-500', 'bg-rose-950/40');
-          showAlert("Format OPS ID Salah! Harus diawali 'OPS' + angka", false);
+          showAlert("Format OPS ID Salah!", false);
           kembaliOps.select();
           return;
         }
@@ -690,11 +660,9 @@
 
     function formatOpsDisplay(opsId, opsMap, directMother = null, directGroup = null) {
       if (!opsId) return '-';
-      
       const key = opsId.trim().toUpperCase();
       const info = opsMap[key] || {};
       const nama = info.nama || opsId.toUpperCase();
-      
       const mother = directMother || info.mother || '';
       const group = directGroup || info.group || '';
 
@@ -702,8 +670,6 @@
       if (mother || group) {
         const teamText = [mother, group].filter(Boolean).join(' / ');
         teamBadge = `<span class="inline-block text-[9px] text-orange-300 font-normal ml-1">🏷️ ${teamText}</span>`;
-      } else {
-        teamBadge = `<span class="inline-block text-[9px] text-slate-500 font-normal ml-1">🏷️ Non-Team</span>`;
       }
 
       return `
@@ -731,24 +697,21 @@
         playSound('error');
         if(!opsId) opsInput.classList.add('border-rose-500', 'bg-rose-950/40');
         if(!noAsset) assetInput.classList.add('border-rose-500', 'bg-rose-950/40');
-        return showAlert("Lengkapi data scan terlebih dahulu!", false);
+        return showAlert("Lengkapi data scan!", false);
       }
 
       if (!isValidOpsFormat(opsId)) {
         playSound('error');
         opsInput.classList.add('border-rose-500', 'bg-rose-950/40');
-        showAlert("OPS ID tidak valid! Harus OPS + Angka", false);
-        opsInput.focus();
-        opsInput.select();
+        showAlert("OPS ID tidak valid!", false);
         return;
       }
 
       if (isValidOpsFormat(noAsset) || noAsset.startsWith('OPS')) {
         playSound('error');
         assetInput.classList.add('border-rose-500', 'bg-rose-950/40');
-        showAlert(`🚨 MIS-SCAN! Kolom No Asset tertembak OPS ID (${noAsset}). Harap scan barcode aset!`, false);
+        showAlert(`🚨 MIS-SCAN! Barcode No Asset terscan OPS ID (${noAsset})`, false);
         assetInput.value = '';
-        assetInput.focus();
         return;
       }
 
@@ -761,15 +724,11 @@
 
       if (error) {
         playSound('error');
-        assetInput.classList.add('border-rose-500', 'bg-rose-950/40');
         showAlert(`Error: ${error.message}`, false);
-        assetInput.select();
       } else if (data) {
         const result = Array.isArray(data) ? data[0] : data;
         const success = result.success !== undefined ? result.success : true;
-        const message = result.message || (isPinjam ? "Berhasil dipinjam" : "Berhasil dikembalikan");
-
-        showAlert(message, success);
+        showAlert(result.message || "Berhasil", success);
 
         if (success) {
           playSound('success');
@@ -780,9 +739,6 @@
           loadTables();
         } else {
           playSound('error');
-          assetInput.classList.add('border-rose-500', 'bg-rose-950/40');
-          assetInput.focus();
-          assetInput.select();
         }
       }
     }
@@ -817,7 +773,7 @@
           <td class="p-2">${formatOpsDisplay(i.ops_id, opsMap, i.mother_team, i.group_team)}</td>
           <td class="p-2">
             <span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.status_transaksi === 'DIPINJAM' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">
-              ${i.status_transaksi === 'DIPINJAM' ? 'OUT (DIPINJAM)' : 'IN (DIKEMBALIKAN)'}
+              ${i.status_transaksi === 'DIPINJAM' ? 'OUT' : 'IN'}
             </span>
           </td>
         </tr>
@@ -858,32 +814,30 @@
         document.getElementById('stat-meteran-total').innerText = `Tot: ${CACHE_TOTAL_COUNTS.meteran}`;
         document.getElementById('stat-toa-total').innerText = `Tot: ${CACHE_TOTAL_COUNTS.toa}`;
       } catch (e) {
-        console.error("Gagal inisialisasi master data:", e);
+        console.error("Gagal init master:", e);
       }
     }
 
     async function loadTables() {
       try {
         const [
-          { data: overdue, error: errOverdue }, 
-          { data: activeLoans, error: errActive }
+          { data: overdue }, 
+          { data: activeLoans }
         ] = await Promise.all([
-          // TABEL OVERDUE DIBATASI HANYA 10 ASET UNTUK HEMAT EGRESS
+          // TABEL OVERDUE DIBATASI 10
           supabaseClient
             .from('view_peminjaman_overdue')
             .select('no_asset, ops_id, tgl_pinjam, durasi_jam, mother_team, group_team')
             .limit(10),
 
-          // TABEL SEDANG DIPINJAM TETAP 100% KELUAR SEMUA (TANPA LIMIT)
+          // TABEL ASET DIPINJAM DIBATASI 50 UNTUK MENGHEMAT EGRESS!
           supabaseClient
             .from('peminjaman')
             .select('no_asset, ops_id, tgl_pinjam, mother_team, group_team')
             .eq('status_transaksi', 'DIPINJAM')
             .order('tgl_pinjam', { ascending: false })
+            .limit(50) // 👈 KUNCI HEMAT KUOTA!
         ]);
-
-        if (errOverdue) console.error("Error Overdue Query:", errOverdue.message);
-        if (errActive) console.error("Error Active Loans Query:", errActive.message);
 
         let allOpsIds = [];
         if (activeLoans) activeLoans.forEach(a => allOpsIds.push(a.ops_id));
@@ -907,10 +861,9 @@
           const loan = activeCardMap[cardCode];
           if (!loan) {
             return `
-              <div class="bg-slate-950 border border-emerald-500/30 rounded-lg p-1.5 text-center transition shadow">
+              <div class="bg-slate-950 border border-emerald-500/30 rounded-lg p-1.5 text-center shadow">
                 <div class="text-[10px] font-black font-mono text-emerald-400">${cardCode}</div>
                 <div class="text-[8px] font-bold text-emerald-500/80 mt-0.5">READY</div>
-                <div class="text-[8px] text-slate-600 font-mono mt-0.5">-</div>
               </div>
             `;
           }
@@ -921,13 +874,11 @@
 
           const info = opsMap[loan.ops_id.trim().toUpperCase()] || {};
           const peminjamName = info.nama || loan.ops_id.toUpperCase();
-          const teamLabel = [loan.mother_team || info.mother, loan.group_team || info.group].filter(Boolean).join(' - ');
 
           return `
-            <div class="${isOverdue ? 'bg-rose-950/80 border-rose-500 animate-overdue' : 'bg-amber-950/50 border-amber-500/50'} border rounded-lg p-1 text-center transition shadow" title="${peminjamName} (${teamLabel})">
+            <div class="${isOverdue ? 'bg-rose-950/80 border-rose-500 animate-overdue' : 'bg-amber-950/50 border-amber-500/50'} border rounded-lg p-1 text-center shadow">
               <div class="text-[10px] font-black font-mono ${isOverdue ? 'text-rose-400' : 'text-amber-400'}">${cardCode}</div>
-              <div class="text-[9px] font-bold text-slate-100 truncate mt-0.5">${peminjamName} (${loan.ops_id.toUpperCase()})</div>
-              ${teamLabel ? `<div class="text-[8px] text-slate-400 truncate">${teamLabel}</div>` : ''}
+              <div class="text-[9px] font-bold text-slate-100 truncate mt-0.5">${peminjamName}</div>
               <div class="text-[8px] font-extrabold font-mono mt-0.5 ${isOverdue ? 'text-rose-300' : 'text-amber-300'}">
                 ⏱️ ${diffMinutes}m ${isOverdue ? '🚨' : ''}
               </div>
@@ -935,9 +886,8 @@
           `;
         }).join('');
 
-        // HITUNG STATISTIK FLOOR & STANDBY
+        // STATS FLOOR & STANDBY
         let pdaFloor = 0, htFloor = 0, tangFloor = 0, meteranFloor = 0, toaFloor = 0;
-
         let masterMap = {};
         CACHE_MASTER_ASSETS.forEach(m => { masterMap[m.no_asset] = m.asset_id || ''; });
 
@@ -970,7 +920,7 @@
         document.getElementById('stat-toa-floor').innerText = toaFloor;
         document.getElementById('stat-toa-standby').innerText = Math.max(0, CACHE_TOTAL_COUNTS.toa - toaFloor);
 
-        // TABEL OVERDUE (> 9 JAM) - HANYA RENDERING MAX 10 ASET
+        // RENDERING TABEL OVERDUE
         const overdueTbody = document.getElementById('table-overdue');
         if (overdueTbody) {
           overdueTbody.innerHTML = (overdue && overdue.length) ? overdue.map(i => {
@@ -989,11 +939,11 @@
           }).join('') : '<tr><td colspan="4" class="p-3 text-slate-500 text-center">Tidak ada transaksi overdue 🎉</td></tr>';
         }
 
-        // TABEL SEMUA ASET SEDANG DIPINJAM - RENDER SEMUA ASET
+        // RENDERING TABEL DIPINJAM (MAX 50)
         const historyTbody = document.getElementById('table-history');
         if (historyTbody) {
           if (!activeLoans || activeLoans.length === 0) {
-            historyTbody.innerHTML = '<tr><td colspan="4" class="p-3 text-slate-500 text-center">Tidak ada aset yang sedang dipinjam saat ini 🎉</td></tr>';
+            historyTbody.innerHTML = '<tr><td colspan="4" class="p-3 text-slate-500 text-center">Tidak ada aset dipinjam 🎉</td></tr>';
           } else {
             historyTbody.innerHTML = activeLoans.map(i => {
               const jam = new Date(i.tgl_pinjam).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
@@ -1005,7 +955,7 @@
                   <td class="p-1.5 pr-3">${formatOpsDisplay(i.ops_id, opsMap, i.mother_team, i.group_team)}</td>
                   <td class="p-1.5">
                     <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30">
-                      OUT (DIPINJAM)
+                      OUT
                     </span>
                   </td>
                 </tr>
@@ -1015,7 +965,7 @@
         }
 
       } catch (err) {
-        console.error("Gagal load tabel & stats:", err);
+        console.error("Gagal load tabel:", err);
       }
     }
 
