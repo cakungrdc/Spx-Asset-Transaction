@@ -26,21 +26,21 @@
     <div class="flex justify-between items-center border-b border-orange-500/30 pb-3">
       <div>
         <h1 class="text-2xl font-extrabold text-orange-500 tracking-wide flex items-center gap-2">
-          🚚 SPX ASSET TRANSACTION <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">⚡ Mode Fetch On-Demand</span>
+          🚚 SPX ASSET TRANSACTION <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">⚡ Mode Fetch On-Demand + Live Cards</span>
         </h1>
-        <p class="text-xs text-slate-400">Peminjaman & Pengembalian Presisi (Zero Auto-Load)</p>
+        <p class="text-xs text-slate-400">Peminjaman & Pengembalian Presisi (Zero Egress Bloat)</p>
       </div>
       <div class="flex items-center gap-3">
         <button id="btn-open-add-asset" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition shadow border border-orange-400/30 flex items-center gap-1">
           ➕ Tambah Aset
         </button>
         <div id="status-koneksi" class="px-2.5 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-          ● Ready (On-Demand)
+          ● Ready (Auto-Card)
         </div>
       </div>
     </div>
 
-    <!-- HIGHLIGHT STATS (TERMASUK KP) -->
+    <!-- HIGHLIGHT STATS -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
       <!-- PDA -->
       <div class="bg-slate-900 border border-orange-500/30 rounded-lg p-2 shadow space-y-1">
@@ -78,7 +78,7 @@
         </div>
       </div>
 
-      <!-- KP (BARU) -->
+      <!-- KP -->
       <div class="bg-slate-900 border border-indigo-500/30 rounded-lg p-2 shadow space-y-1">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
           <span class="text-[10px] font-bold text-indigo-400">📦 KP</span>
@@ -151,13 +151,13 @@
       </div>
     </div>
 
-    <!-- MONITORING KARTU AKSES -->
+    <!-- MONITORING KARTU AKSES (AUTOMATIC STANDBY 10 MENIT) -->
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-xl space-y-2">
       <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
         <h2 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-          💳 Status Kartu Akses <span class="text-[9px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">Max 10 Menit</span>
+          💳 Status Kartu Akses <span class="text-[9px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">Max 10 Menit (Auto Monitoring)</span>
         </h2>
-        <span class="text-[10px] text-slate-400">Realtime Tracker</span>
+        <span id="card-last-update" class="text-[10px] text-emerald-400 font-mono">● Auto Sync Active</span>
       </div>
       <div id="grid-cards" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 gap-2"></div>
     </div>
@@ -223,15 +223,15 @@
       </div>
     </div>
 
-    <!-- TOMBOL KHUSUS MUAT DATA (PENYELAMAT KUOTA) -->
+    <!-- TOMBOL KHUSUS MUAT SEMUA DATA (UNLIMITED) -->
     <div class="text-center pt-2 pb-1">
       <button id="btn-manual-fetch" class="bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold px-6 py-2.5 rounded-xl border border-amber-500/40 shadow-lg text-xs transition flex items-center gap-2 mx-auto">
-        🔄 Klik Untuk Tampilkan / Refresh Aset Dipinjam & Overdue
+        🔄 Klik Untuk Tampilkan / Refresh Seluruh Aset Dipinjam & Overdue
       </button>
-      <p class="text-[10px] text-slate-500 mt-1">Data tabel di bawah disembunyikan otomatis untuk menghemat bandwidth kuota database.</p>
+      <p class="text-[10px] text-slate-500 mt-1">Kartu Akses ter-update otomatis. Klik tombol di atas untuk menampilkan **seluruh** daftar aset yang sedang dipinjam.</p>
     </div>
 
-    <!-- TABEL OVERDUE & ASET SEDANG DIPINJAM (ON-DEMAND) -->
+    <!-- TABEL OVERDUE & ASET SEDANG DIPINJAM (ALL DATA UNLIMITED) -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
       
       <!-- TABEL OVERDUE -->
@@ -239,7 +239,7 @@
         <div class="flex justify-between items-center mb-2">
           <h2 class="text-sm font-bold text-rose-400 flex items-center gap-1.5">🚨 Overdue (> 9 Jam)</h2>
         </div>
-        <div class="overflow-x-auto overflow-y-auto max-h-[300px] custom-scrollbar pr-1">
+        <div class="overflow-x-auto overflow-y-auto max-h-[350px] custom-scrollbar pr-1">
           <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
             <thead class="sticky top-0 bg-slate-900 text-slate-400 border-b border-slate-800 font-semibold">
               <tr>
@@ -250,18 +250,18 @@
               </tr>
             </thead>
             <tbody id="table-overdue" class="divide-y divide-slate-800">
-              <tr><td colspan="4" class="p-3 text-slate-500 text-center">Klik tombol "Refresh Data" di atas untuk memuat data</td></tr>
+              <tr><td colspan="4" class="p-3 text-slate-500 text-center">Klik tombol "Refresh Seluruh Aset" di atas untuk memuat data</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- TABEL ASET DIPINJAM -->
+      <!-- TABEL ASET DIPINJAM (SEMUA TANPA LIMIT) -->
       <div class="lg:col-span-6 bg-slate-900 p-4 rounded-xl border border-slate-800 shadow-xl flex flex-col">
         <div class="flex justify-between items-center mb-2">
-          <h2 class="text-sm font-bold text-slate-200">📦 Aset Sedang Dipinjam <span class="text-[9px] text-amber-400 font-normal">(Max 50)</span></h2>
+          <h2 class="text-sm font-bold text-slate-200">📦 Semua Aset Sedang Dipinjam <span id="count-dipinjam-badge" class="text-[9px] text-amber-400 font-normal"></span></h2>
         </div>
-        <div class="overflow-x-auto overflow-y-auto max-h-[300px] custom-scrollbar pr-1">
+        <div class="overflow-x-auto overflow-y-auto max-h-[350px] custom-scrollbar pr-1">
           <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
             <thead class="sticky top-0 bg-slate-900 text-slate-400 border-b border-slate-800 font-semibold">
               <tr>
@@ -272,7 +272,7 @@
               </tr>
             </thead>
             <tbody id="table-history" class="divide-y divide-slate-800">
-              <tr><td colspan="4" class="p-3 text-slate-500 text-center">Klik tombol "Refresh Data" di atas untuk memuat data</td></tr>
+              <tr><td colspan="4" class="p-3 text-slate-500 text-center">Klik tombol "Refresh Seluruh Aset" di atas untuk memuat data</td></tr>
             </tbody>
           </table>
         </div>
@@ -712,6 +712,67 @@
       `;
     }
 
+    // UPDATE DEDIKASI AUTOMATIS KARTU AKSES (SUPER-LIGHTWEIGHT FETCH)
+    async function refreshCardMonitoringOnly() {
+      try {
+        const { data: activeCards } = await supabaseClient
+          .from('peminjaman')
+          .select('no_asset, ops_id, tgl_pinjam')
+          .eq('status_transaksi', 'DIPINJAM')
+          .ilike('no_asset', 'CARD-%');
+
+        let activeCardMap = {};
+        let cardOpsIds = [];
+
+        if (activeCards) {
+          activeCards.forEach(item => {
+            const code = (item.no_asset || '').toUpperCase().trim();
+            activeCardMap[code] = item;
+            cardOpsIds.push(item.ops_id);
+          });
+        }
+
+        const opsMap = await fetchMasterOpsMap(cardOpsIds);
+        const now = new Date();
+        const gridContainer = document.getElementById('grid-cards');
+
+        gridContainer.innerHTML = CARD_LIST.map(cardCode => {
+          const loan = activeCardMap[cardCode];
+          if (!loan) {
+            return `
+              <div class="bg-slate-950 border border-emerald-500/30 rounded-lg p-1.5 text-center shadow">
+                <div class="text-[10px] font-black font-mono text-emerald-400">${cardCode}</div>
+                <div class="text-[8px] font-bold text-emerald-500/80 mt-0.5">READY</div>
+              </div>
+            `;
+          }
+
+          const pinjamTime = new Date(loan.tgl_pinjam);
+          const diffMinutes = Math.floor((now - pinjamTime) / 60000);
+          const isOverdue = diffMinutes >= 10;
+
+          const info = opsMap[loan.ops_id.trim().toUpperCase()] || {};
+          const peminjamName = info.nama || loan.ops_id.toUpperCase();
+
+          return `
+            <div class="${isOverdue ? 'bg-rose-950/80 border-rose-500 animate-overdue' : 'bg-amber-950/50 border-amber-500/50'} border rounded-lg p-1 text-center shadow">
+              <div class="text-[10px] font-black font-mono ${isOverdue ? 'text-rose-400' : 'text-amber-400'}">${cardCode}</div>
+              <div class="text-[9px] font-bold text-slate-100 truncate mt-0.5">${peminjamName}</div>
+              <div class="text-[8px] font-extrabold font-mono mt-0.5 ${isOverdue ? 'text-rose-300' : 'text-amber-300'}">
+                ⏱️ ${diffMinutes}m ${isOverdue ? '🚨' : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('card-last-update').innerText = `● Live (${timeNow})`;
+
+      } catch (err) {
+        console.error("Gagal refresh kartu:", err);
+      }
+    }
+
     async function prosesTransaksi(type) {
       const isPinjam = type === 'pinjam';
       const opsInput = isPinjam ? pinjamOps : kembaliOps;
@@ -767,6 +828,11 @@
           assetInput.value = '';
           previewElem.classList.add('hidden');
           opsInput.focus();
+
+          // Pemicu otomatis refresh Kartu Akses jika yang diproses adalah Kartu
+          if (noAsset.startsWith('CARD')) {
+            refreshCardMonitoringOnly();
+          }
         } else {
           playSound('error');
         }
@@ -852,9 +918,10 @@
       }
     }
 
+    // LOAD ALL DATA (UNLIMITED / TANPA LIMIT 50)
     async function loadTablesManual() {
       const btn = document.getElementById('btn-manual-fetch');
-      btn.innerText = '⏳ Memuat Data...';
+      btn.innerText = '⏳ Memuat SELURUH Data Aset Dipinjam...';
       btn.disabled = true;
 
       try {
@@ -864,15 +931,13 @@
         ] = await Promise.all([
           supabaseClient
             .from('view_peminjaman_overdue')
-            .select('no_asset, ops_id, tgl_pinjam, durasi_jam, mother_team, group_team')
-            .limit(10),
+            .select('no_asset, ops_id, tgl_pinjam, durasi_jam, mother_team, group_team'), // TANPA LIMIT
 
           supabaseClient
             .from('peminjaman')
             .select('no_asset, ops_id, tgl_pinjam, mother_team, group_team')
             .eq('status_transaksi', 'DIPINJAM')
-            .order('tgl_pinjam', { ascending: false })
-            .limit(50)
+            .order('tgl_pinjam', { ascending: false }) // TANPA LIMIT (DAPAT SEMUA)
         ]);
 
         let allOpsIds = [];
@@ -881,48 +946,10 @@
 
         const opsMap = await fetchMasterOpsMap(allOpsIds);
 
-        // KARTU AKSES REALTIME
-        let activeCardMap = {};
-        if (activeLoans) {
-          activeLoans.forEach(item => {
-            const code = (item.no_asset || '').toUpperCase().trim();
-            activeCardMap[code] = item;
-          });
-        }
+        // REFRESH STATUS KARTU DENGAN SANGAT RINGAN
+        refreshCardMonitoringOnly();
 
-        const now = new Date();
-        const gridContainer = document.getElementById('grid-cards');
-
-        gridContainer.innerHTML = CARD_LIST.map(cardCode => {
-          const loan = activeCardMap[cardCode];
-          if (!loan) {
-            return `
-              <div class="bg-slate-950 border border-emerald-500/30 rounded-lg p-1.5 text-center shadow">
-                <div class="text-[10px] font-black font-mono text-emerald-400">${cardCode}</div>
-                <div class="text-[8px] font-bold text-emerald-500/80 mt-0.5">READY</div>
-              </div>
-            `;
-          }
-
-          const pinjamTime = new Date(loan.tgl_pinjam);
-          const diffMinutes = Math.floor((now - pinjamTime) / 60000);
-          const isOverdue = diffMinutes >= 10;
-
-          const info = opsMap[loan.ops_id.trim().toUpperCase()] || {};
-          const peminjamName = info.nama || loan.ops_id.toUpperCase();
-
-          return `
-            <div class="${isOverdue ? 'bg-rose-950/80 border-rose-500 animate-overdue' : 'bg-amber-950/50 border-amber-500/50'} border rounded-lg p-1 text-center shadow">
-              <div class="text-[10px] font-black font-mono ${isOverdue ? 'text-rose-400' : 'text-amber-400'}">${cardCode}</div>
-              <div class="text-[9px] font-bold text-slate-100 truncate mt-0.5">${peminjamName}</div>
-              <div class="text-[8px] font-extrabold font-mono mt-0.5 ${isOverdue ? 'text-rose-300' : 'text-amber-300'}">
-                ⏱️ ${diffMinutes}m ${isOverdue ? '🚨' : ''}
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        // STATS FLOOR & STANDBY (TERMASUK KP)
+        // STATS FLOOR & STANDBY
         let pdaFloor = 0, htFloor = 0, kpFloor = 0, tangFloor = 0, meteranFloor = 0, toaFloor = 0;
         let masterMap = {};
         CACHE_MASTER_ASSETS.forEach(m => { masterMap[m.no_asset] = m.asset_id || ''; });
@@ -960,7 +987,7 @@
         document.getElementById('stat-toa-floor').innerText = toaFloor;
         document.getElementById('stat-toa-standby').innerText = Math.max(0, CACHE_TOTAL_COUNTS.toa - toaFloor);
 
-        // RENDERING TABEL OVERDUE
+        // RENDERING TABEL OVERDUE (ALL DATA)
         const overdueTbody = document.getElementById('table-overdue');
         if (overdueTbody) {
           overdueTbody.innerHTML = (overdue && overdue.length) ? overdue.map(i => {
@@ -979,12 +1006,16 @@
           }).join('') : '<tr><td colspan="4" class="p-3 text-slate-500 text-center">Tidak ada transaksi overdue 🎉</td></tr>';
         }
 
-        // RENDERING TABEL DIPINJAM
+        // RENDERING TABEL DIPINJAM (ALL DATA UNLIMITED)
         const historyTbody = document.getElementById('table-history');
+        const badgeCount = document.getElementById('count-dipinjam-badge');
+
         if (historyTbody) {
           if (!activeLoans || activeLoans.length === 0) {
             historyTbody.innerHTML = '<tr><td colspan="4" class="p-3 text-slate-500 text-center">Tidak ada aset dipinjam 🎉</td></tr>';
+            if (badgeCount) badgeCount.innerText = '(Total: 0 Unit)';
           } else {
+            if (badgeCount) badgeCount.innerText = `(Total: ${activeLoans.length} Unit)`;
             historyTbody.innerHTML = activeLoans.map(i => {
               const jam = new Date(i.tgl_pinjam).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
@@ -1007,13 +1038,19 @@
       } catch (err) {
         console.error("Gagal load tabel:", err);
       } finally {
-        btn.innerText = '🔄 Klik Untuk Tampilkan / Refresh Aset Dipinjam & Overdue';
+        btn.innerText = '🔄 Klik Untuk Tampilkan / Refresh Seluruh Aset Dipinjam & Overdue';
         btn.disabled = false;
       }
     }
 
     async function startApp() {
       await initMasterData();
+      
+      // Load Monitoring Kartu Akses Otomatis Pertama Kali
+      refreshCardMonitoringOnly();
+
+      // Set Interval Otomatis khusus Cek Kartu Akses tiap 30 detik (Egress Sangat Ringan)
+      setInterval(refreshCardMonitoringOnly, 30000);
     }
 
     startApp();
