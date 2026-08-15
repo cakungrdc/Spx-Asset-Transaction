@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SPX ASSET TRANSACTION - Ultra Low Egress</title>
+  <title>SPX ASSET TRANSACTION - Ultra Low Egress (120s Card Sync)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -26,7 +26,7 @@
     <div class="flex justify-between items-center border-b border-orange-500/30 pb-3">
       <div>
         <h1 class="text-2xl font-extrabold text-orange-500 tracking-wide flex items-center gap-2">
-          🚚 SPX ASSET TRANSACTION <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">⚡ Mode Fetch On-Demand + Live Cards</span>
+          🚚 SPX ASSET TRANSACTION <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">⚡ Ultra Saver (Card 120s Sync)</span>
         </h1>
         <p class="text-xs text-slate-400">Peminjaman & Pengembalian Presisi (Zero Egress Bloat)</p>
       </div>
@@ -35,7 +35,7 @@
           ➕ Tambah Aset
         </button>
         <div id="status-koneksi" class="px-2.5 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-          ● Ready (Auto-Card)
+          ● Ready (Card 2m)
         </div>
       </div>
     </div>
@@ -151,13 +151,13 @@
       </div>
     </div>
 
-    <!-- MONITORING KARTU AKSES (AUTOMATIC STANDBY 10 MENIT) -->
+    <!-- MONITORING KARTU AKSES (AUTOMATIC STANDBY 120 DETIK) -->
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 shadow-xl space-y-2">
       <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
         <h2 class="text-xs font-bold text-slate-200 flex items-center gap-2">
-          💳 Status Kartu Akses <span class="text-[9px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">Max 10 Menit (Auto Monitoring)</span>
+          💳 Status Kartu Akses <span class="text-[9px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">Max 10 Menit (Auto Sync 120s)</span>
         </h2>
-        <span id="card-last-update" class="text-[10px] text-emerald-400 font-mono">● Auto Sync Active</span>
+        <span id="card-last-update" class="text-[10px] text-emerald-400 font-mono">● Auto Sync (2 Min)</span>
       </div>
       <div id="grid-cards" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 gap-2"></div>
     </div>
@@ -228,7 +228,7 @@
       <button id="btn-manual-fetch" class="bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold px-6 py-2.5 rounded-xl border border-amber-500/40 shadow-lg text-xs transition flex items-center gap-2 mx-auto">
         🔄 Klik Untuk Tampilkan / Refresh Seluruh Aset Dipinjam & Overdue
       </button>
-      <p class="text-[10px] text-slate-500 mt-1">Kartu Akses ter-update otomatis. Klik tombol di atas untuk menampilkan **seluruh** daftar aset yang sedang dipinjam.</p>
+      <p class="text-[10px] text-slate-500 mt-1">Kartu Akses ter-update otomatis tiap 2 menit. Klik tombol di atas untuk menampilkan **seluruh** daftar aset dipinjam.</p>
     </div>
 
     <!-- TABEL OVERDUE & ASET SEDANG DIPINJAM (ALL DATA UNLIMITED) -->
@@ -712,7 +712,7 @@
       `;
     }
 
-    // UPDATE DEDIKASI AUTOMATIS KARTU AKSES (SUPER-LIGHTWEIGHT FETCH)
+    // UPDATE DEDIKASI AUTOMATIS KARTU AKSES (120 DETIK INTERVAL)
     async function refreshCardMonitoringOnly() {
       try {
         const { data: activeCards } = await supabaseClient
@@ -766,7 +766,7 @@
         }).join('');
 
         const timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        document.getElementById('card-last-update').innerText = `● Live (${timeNow})`;
+        document.getElementById('card-last-update').innerText = `● Auto Sync (2m) - ${timeNow}`;
 
       } catch (err) {
         console.error("Gagal refresh kartu:", err);
@@ -931,13 +931,13 @@
         ] = await Promise.all([
           supabaseClient
             .from('view_peminjaman_overdue')
-            .select('no_asset, ops_id, tgl_pinjam, durasi_jam, mother_team, group_team'), // TANPA LIMIT
+            .select('no_asset, ops_id, tgl_pinjam, durasi_jam, mother_team, group_team'),
 
           supabaseClient
             .from('peminjaman')
             .select('no_asset, ops_id, tgl_pinjam, mother_team, group_team')
             .eq('status_transaksi', 'DIPINJAM')
-            .order('tgl_pinjam', { ascending: false }) // TANPA LIMIT (DAPAT SEMUA)
+            .order('tgl_pinjam', { ascending: false })
         ]);
 
         let allOpsIds = [];
@@ -946,7 +946,6 @@
 
         const opsMap = await fetchMasterOpsMap(allOpsIds);
 
-        // REFRESH STATUS KARTU DENGAN SANGAT RINGAN
         refreshCardMonitoringOnly();
 
         // STATS FLOOR & STANDBY
@@ -987,7 +986,7 @@
         document.getElementById('stat-toa-floor').innerText = toaFloor;
         document.getElementById('stat-toa-standby').innerText = Math.max(0, CACHE_TOTAL_COUNTS.toa - toaFloor);
 
-        // RENDERING TABEL OVERDUE (ALL DATA)
+        // RENDERING TABEL OVERDUE
         const overdueTbody = document.getElementById('table-overdue');
         if (overdueTbody) {
           overdueTbody.innerHTML = (overdue && overdue.length) ? overdue.map(i => {
@@ -1006,7 +1005,7 @@
           }).join('') : '<tr><td colspan="4" class="p-3 text-slate-500 text-center">Tidak ada transaksi overdue 🎉</td></tr>';
         }
 
-        // RENDERING TABEL DIPINJAM (ALL DATA UNLIMITED)
+        // RENDERING TABEL DIPINJAM
         const historyTbody = document.getElementById('table-history');
         const badgeCount = document.getElementById('count-dipinjam-badge');
 
@@ -1049,8 +1048,8 @@
       // Load Monitoring Kartu Akses Otomatis Pertama Kali
       refreshCardMonitoringOnly();
 
-      // Set Interval Otomatis khusus Cek Kartu Akses tiap 30 detik (Egress Sangat Ringan)
-      setInterval(refreshCardMonitoringOnly, 30000);
+      // SET INTERVAL AUTOMATIS KARTU AKSES: 120 DETIK (2 MENIT)
+      setInterval(refreshCardMonitoringOnly, 120000);
     }
 
     startApp();
