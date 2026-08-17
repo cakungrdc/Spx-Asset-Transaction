@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SPX ASSET TRANSACTION - Ultra Low Egress (120s Card Sync)</title>
+  <title>SPX ASSET TRANSACTION - Fixed Stats Sync</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -26,21 +26,21 @@
     <div class="flex justify-between items-center border-b border-orange-500/30 pb-3">
       <div>
         <h1 class="text-2xl font-extrabold text-orange-500 tracking-wide flex items-center gap-2">
-          🚚 SPX ASSET TRANSACTION <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">⚡ Ultra Saver (Card 120s Sync)</span>
+          🚚 SPX ASSET TRANSACTION <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">⚡ Ultra Saver</span>
         </h1>
-        <p class="text-xs text-slate-400">Peminjaman & Pengembalian Presisi (Zero Egress Bloat)</p>
+        <p class="text-xs text-slate-400">Peminjaman & Pengembalian Presisi</p>
       </div>
       <div class="flex items-center gap-3">
         <button id="btn-open-add-asset" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-orange-600 hover:bg-orange-500 text-white transition shadow border border-orange-400/30 flex items-center gap-1">
           ➕ Tambah Aset
         </button>
         <div id="status-koneksi" class="px-2.5 py-1 text-xs rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-          ● Ready (Card 2m)
+          ● Ready
         </div>
       </div>
     </div>
 
-    <!-- HIGHLIGHT STATS (DARI DATABASE) -->
+    <!-- HIGHLIGHT STATS -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
       <!-- PDA -->
       <div class="bg-slate-900 border border-orange-500/30 rounded-lg p-2 shadow space-y-1">
@@ -109,7 +109,7 @@
           </div>
           <div class="bg-slate-950/80 p-1 rounded border border-emerald-500/30">
             <p class="text-[7px] text-emerald-400 font-bold">STBY</p>
-            <h3 id="stat-tang-standby" class="text-sm font-black text-emerald-400 font-mono">0</h3>
+            <h3 id="stat-tang-standby" class="text-sm font-black text-purple-400 font-mono">0</h3>
           </div>
         </div>
       </div>
@@ -277,7 +277,7 @@
       </div>
     </div>
 
-    <!-- CARI RIWAYAT SPESIFIK (FITUR YANG DIKEMBALIKAN) -->
+    <!-- CARI RIWAYAT SPESIFIK -->
     <div class="bg-slate-900 p-4 rounded-xl border border-orange-500/20 shadow-xl space-y-3">
       <div class="flex justify-between items-center">
         <h2 class="text-xs font-bold text-orange-400">🔍 Cari Riwayat Transaksi Spesifik (Max 15)</h2>
@@ -372,9 +372,13 @@
 
     document.getElementById('btn-pinjam').addEventListener('click', () => prosesTransaksi('pinjam'));
     document.getElementById('btn-kembali').addEventListener('click', () => prosesTransaksi('kembali'));
-    document.getElementById('btn-manual-fetch').addEventListener('click', loadTablesManual);
+    
+    // INTEGRASI REFRESH DATA & HITUNG ASET
+    document.getElementById('btn-manual-fetch').addEventListener('click', () => {
+      loadTablesManual();
+      loadAssetStats();
+    });
 
-    // BINDING FITUR CARI RIWAYAT
     btnSearch.addEventListener('click', doSearch);
     inputSearch.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); doSearch(); } });
 
@@ -384,7 +388,6 @@
       alertBox.classList.remove('hidden');
     }
 
-    // FUNGSI PROSES TRANSAKSI
     async function prosesTransaksi(type) {
       const isPinjam = type === 'pinjam';
       const opsInput = isPinjam ? pinjamOps : kembaliOps;
@@ -432,16 +435,16 @@
       }
     }
 
-    // FUNGSI FITUR HITUNG TOTAL ASET STANDBY & FLOOR
+    // FUNGSI HITUNG TOTAL ASET STANDBY & FLOOR
     async function loadAssetStats() {
       try {
         const [resMaster, resActive] = await Promise.all([
-          supabaseClient.from('master_asset').select('no_asset, kategori'),
-          supabaseClient.from('peminjaman').select('no_asset').eq('status_transaksi', 'DIPINJAM')
+          supabaseClient.from('master_asset').select('no_asset, kategori').limit(5000),
+          supabaseClient.from('peminjaman').select('no_asset').eq('status_transaksi', 'DIPINJAM').limit(5000)
         ]);
 
         const masterAssets = resMaster.data || [];
-        const activeLoans = new Set((resActive.data || []).map(a => a.no_asset.toUpperCase().trim()));
+        const activeLoans = new Set((resActive.data || []).map(a => (a.no_asset || '').toUpperCase().trim()));
 
         const categories = ['PDA', 'HT', 'KP', 'TANG', 'METERAN', 'TOA'];
         let stats = {};
@@ -450,14 +453,25 @@
           stats[cat] = { total: 0, floor: 0, standby: 0 };
         });
 
+        // TENTUKAN KATEGORI ASET DARI KOLOM KATEGORI ATAU KODE AWALAN ASSET
+        function detectCategory(rawCat, noAsset) {
+          const catClean = (rawCat || '').toUpperCase().trim();
+          const assetClean = (noAsset || '').toUpperCase().trim();
+
+          for (let cat of categories) {
+            if (catClean.includes(cat) || assetClean.startsWith(cat)) return cat;
+          }
+          return null;
+        }
+
         masterAssets.forEach(asset => {
-          let cat = (asset.kategori || '').toUpperCase().trim();
-          if (stats[cat]) {
-            stats[cat].total++;
-            if (activeLoans.has(asset.no_asset.toUpperCase().trim())) {
-              stats[cat].floor++;
+          const matchedCat = detectCategory(asset.kategori, asset.no_asset);
+          if (matchedCat && stats[matchedCat]) {
+            stats[matchedCat].total++;
+            if (activeLoans.has((asset.no_asset || '').toUpperCase().trim())) {
+              stats[matchedCat].floor++;
             } else {
-              stats[cat].standby++;
+              stats[matchedCat].standby++;
             }
           }
         });
@@ -475,7 +489,6 @@
       } catch (err) {}
     }
 
-    // FUNGSI FITUR CARI RIWAYAT
     async function doSearch() {
       const query = inputSearch.value.trim().toUpperCase();
       if (!query) return;
@@ -629,7 +642,7 @@
       `).join('') : '<tr><td colspan="4" class="p-3 text-slate-500 text-center">Tidak ada aset dipinjam 🎉</td></tr>';
     }
 
-    // LOAD INITIAL DATA
+    // INITIAL LOAD
     loadAssetStats();
     refreshCardMonitoringOnly();
     setInterval(refreshCardMonitoringOnly, 120000);
