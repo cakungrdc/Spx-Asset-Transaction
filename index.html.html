@@ -40,13 +40,13 @@
       </div>
     </div>
 
-    <!-- HIGHLIGHT STATS -->
+    <!-- HIGHLIGHT STATS (DARI DATABASE) -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
       <!-- PDA -->
       <div class="bg-slate-900 border border-orange-500/30 rounded-lg p-2 shadow space-y-1">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
           <span class="text-[10px] font-bold text-orange-400">📱 PDA</span>
-          <span id="stat-pda-total" class="text-[8px] bg-orange-500/10 text-orange-300 px-1 py-0.2 rounded font-mono">Tot: ...</span>
+          <span id="stat-pda-total" class="text-[8px] bg-orange-500/10 text-orange-300 px-1 py-0.2 rounded font-mono">Tot: 0</span>
         </div>
         <div class="grid grid-cols-2 gap-1 text-center">
           <div class="bg-slate-950/80 p-1 rounded border border-slate-800">
@@ -64,7 +64,7 @@
       <div class="bg-slate-900 border border-sky-500/30 rounded-lg p-2 shadow space-y-1">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
           <span class="text-[10px] font-bold text-sky-400">📻 HT</span>
-          <span id="stat-ht-total" class="text-[8px] bg-sky-500/10 text-sky-300 px-1 py-0.2 rounded font-mono">Tot: ...</span>
+          <span id="stat-ht-total" class="text-[8px] bg-sky-500/10 text-sky-300 px-1 py-0.2 rounded font-mono">Tot: 0</span>
         </div>
         <div class="grid grid-cols-2 gap-1 text-center">
           <div class="bg-slate-950/80 p-1 rounded border border-slate-800">
@@ -82,7 +82,7 @@
       <div class="bg-slate-900 border border-indigo-500/30 rounded-lg p-2 shadow space-y-1">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
           <span class="text-[10px] font-bold text-indigo-400">📦 KP</span>
-          <span id="stat-kp-total" class="text-[8px] bg-indigo-500/10 text-indigo-300 px-1 py-0.2 rounded font-mono">Tot: 9</span>
+          <span id="stat-kp-total" class="text-[8px] bg-indigo-500/10 text-indigo-300 px-1 py-0.2 rounded font-mono">Tot: 0</span>
         </div>
         <div class="grid grid-cols-2 gap-1 text-center">
           <div class="bg-slate-950/80 p-1 rounded border border-slate-800">
@@ -100,7 +100,7 @@
       <div class="bg-slate-900 border border-purple-500/30 rounded-lg p-2 shadow space-y-1">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
           <span class="text-[10px] font-bold text-purple-400">🛠️ TANG</span>
-          <span id="stat-tang-total" class="text-[8px] bg-purple-500/10 text-purple-300 px-1 py-0.2 rounded font-mono">Tot: ...</span>
+          <span id="stat-tang-total" class="text-[8px] bg-purple-500/10 text-purple-300 px-1 py-0.2 rounded font-mono">Tot: 0</span>
         </div>
         <div class="grid grid-cols-2 gap-1 text-center">
           <div class="bg-slate-950/80 p-1 rounded border border-slate-800">
@@ -118,7 +118,7 @@
       <div class="bg-slate-900 border border-teal-500/30 rounded-lg p-2 shadow space-y-1">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
           <span class="text-[10px] font-bold text-teal-400">📏 METERAN</span>
-          <span id="stat-meteran-total" class="text-[8px] bg-teal-500/10 text-teal-300 px-1 py-0.2 rounded font-mono">Tot: ...</span>
+          <span id="stat-meteran-total" class="text-[8px] bg-teal-500/10 text-teal-300 px-1 py-0.2 rounded font-mono">Tot: 0</span>
         </div>
         <div class="grid grid-cols-2 gap-1 text-center">
           <div class="bg-slate-950/80 p-1 rounded border border-slate-800">
@@ -127,7 +127,7 @@
           </div>
           <div class="bg-slate-950/80 p-1 rounded border border-emerald-500/30">
             <p class="text-[7px] text-emerald-400 font-bold">STBY</p>
-            <h3 id="stat-meteran-standby" class="text-sm font-black text-emerald-400 font-mono">0</h3>
+            <h3 id="stat-meteran-standby" class="text-sm font-black text-teal-400 font-mono">0</h3>
           </div>
         </div>
       </div>
@@ -136,7 +136,7 @@
       <div class="bg-slate-900 border border-yellow-500/30 rounded-lg p-2 shadow space-y-1">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
           <span class="text-[10px] font-bold text-yellow-400">📢 TOA</span>
-          <span id="stat-toa-total" class="text-[8px] bg-yellow-500/10 text-yellow-300 px-1 py-0.2 rounded font-mono">Tot: ...</span>
+          <span id="stat-toa-total" class="text-[8px] bg-yellow-500/10 text-yellow-300 px-1 py-0.2 rounded font-mono">Tot: 0</span>
         </div>
         <div class="grid grid-cols-2 gap-1 text-center">
           <div class="bg-slate-950/80 p-1 rounded border border-slate-800">
@@ -145,7 +145,7 @@
           </div>
           <div class="bg-slate-950/80 p-1 rounded border border-emerald-500/30">
             <p class="text-[7px] text-emerald-400 font-bold">STBY</p>
-            <h3 id="stat-toa-standby" class="text-sm font-black text-emerald-400 font-mono">0</h3>
+            <h3 id="stat-toa-standby" class="text-sm font-black text-yellow-400 font-mono">0</h3>
           </div>
         </div>
       </div>
@@ -208,7 +208,6 @@
             <input type="text" id="kembali-ops" 
               class="w-full bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-lg p-2.5 text-xs text-white focus:outline-none transition font-mono uppercase"
               placeholder="Contoh: OPS123 / OPS-001" autocomplete="off">
-            <!-- THUMBNAIL CONTAINER HASIL SCAN OPS PENGEMBALIAN -->
             <div id="preview-kembali-ops" class="hidden mt-1 p-2 bg-slate-950/90 border border-sky-500/40 rounded-lg text-xs space-y-1.5"></div>
           </div>
 
@@ -226,7 +225,7 @@
       </div>
     </div>
 
-    <!-- TOMBOL REFRESH DATA -->
+    <!-- REFRESH DATA BUTTON -->
     <div class="text-center pt-2 pb-1">
       <button id="btn-manual-fetch" class="bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold px-6 py-2.5 rounded-xl border border-amber-500/40 shadow-lg text-xs transition flex items-center gap-2 mx-auto">
         🔄 Klik Untuk Tampilkan / Refresh Seluruh Aset Dipinjam & Overdue
@@ -278,6 +277,33 @@
       </div>
     </div>
 
+    <!-- CARI RIWAYAT SPESIFIK (FITUR YANG DIKEMBALIKAN) -->
+    <div class="bg-slate-900 p-4 rounded-xl border border-orange-500/20 shadow-xl space-y-3">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xs font-bold text-orange-400">🔍 Cari Riwayat Transaksi Spesifik (Max 15)</h2>
+        <div class="flex gap-2">
+          <input type="text" id="input-search" 
+            class="bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-lg px-3 py-1 text-white text-xs font-mono w-56 uppercase"
+            placeholder="Ketik Ops ID / No Asset..." autocomplete="off">
+          <button id="btn-search" class="bg-orange-600 hover:bg-orange-500 text-white font-semibold px-3 py-1 rounded-lg text-xs">Cari</button>
+        </div>
+      </div>
+      <div id="search-result-container" class="hidden border-t border-slate-800 pt-2 overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
+          <thead class="bg-slate-950 text-slate-400 font-semibold">
+            <tr>
+              <th class="p-2">Tanggal Pinjam</th>
+              <th class="p-2">No Asset</th>
+              <th class="p-2">Peminjam</th>
+              <th class="p-2">Tanggal Kembali</th>
+              <th class="p-2">Status</th>
+            </tr>
+          </thead>
+          <tbody id="table-search" class="divide-y divide-slate-800"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -293,6 +319,11 @@
 
     const previewPinjamOps = document.getElementById('preview-pinjam-ops');
     const previewKembaliOps = document.getElementById('preview-kembali-ops');
+
+    const inputSearch = document.getElementById('input-search');
+    const btnSearch = document.getElementById('btn-search');
+    const searchResultContainer = document.getElementById('search-result-container');
+    const tableSearch = document.getElementById('table-search');
 
     const CARD_LIST = Array.from({ length: 11 }, (_, i) => `CARD-${String(i + 1).padStart(2, '0')}`);
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -343,12 +374,17 @@
     document.getElementById('btn-kembali').addEventListener('click', () => prosesTransaksi('kembali'));
     document.getElementById('btn-manual-fetch').addEventListener('click', loadTablesManual);
 
+    // BINDING FITUR CARI RIWAYAT
+    btnSearch.addEventListener('click', doSearch);
+    inputSearch.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); doSearch(); } });
+
     function showAlert(msg, isSuccess) {
       alertBox.className = `p-3 rounded-xl text-xs font-semibold shadow-lg ${isSuccess ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}`;
       alertBox.innerText = msg;
       alertBox.classList.remove('hidden');
     }
 
+    // FUNGSI PROSES TRANSAKSI
     async function prosesTransaksi(type) {
       const isPinjam = type === 'pinjam';
       const opsInput = isPinjam ? pinjamOps : kembaliOps;
@@ -386,14 +422,89 @@
           assetInput.value = '';
           assetInput.focus();
           
-          // Re-fetch preview thumbnail aset setelah berhasil transaksi pengembalian
           if (!isPinjam) checkKembaliOpsPreview();
           if (noAsset.startsWith('CARD')) refreshCardMonitoringOnly();
+          loadAssetStats();
         } else {
           playSound('error');
           assetInput.classList.add('border-rose-500', 'bg-rose-950/40');
         }
       }
+    }
+
+    // FUNGSI FITUR HITUNG TOTAL ASET STANDBY & FLOOR
+    async function loadAssetStats() {
+      try {
+        const [resMaster, resActive] = await Promise.all([
+          supabaseClient.from('master_asset').select('no_asset, kategori'),
+          supabaseClient.from('peminjaman').select('no_asset').eq('status_transaksi', 'DIPINJAM')
+        ]);
+
+        const masterAssets = resMaster.data || [];
+        const activeLoans = new Set((resActive.data || []).map(a => a.no_asset.toUpperCase().trim()));
+
+        const categories = ['PDA', 'HT', 'KP', 'TANG', 'METERAN', 'TOA'];
+        let stats = {};
+
+        categories.forEach(cat => {
+          stats[cat] = { total: 0, floor: 0, standby: 0 };
+        });
+
+        masterAssets.forEach(asset => {
+          let cat = (asset.kategori || '').toUpperCase().trim();
+          if (stats[cat]) {
+            stats[cat].total++;
+            if (activeLoans.has(asset.no_asset.toUpperCase().trim())) {
+              stats[cat].floor++;
+            } else {
+              stats[cat].standby++;
+            }
+          }
+        });
+
+        categories.forEach(cat => {
+          const lowerCat = cat.toLowerCase();
+          const elemTot = document.getElementById(`stat-${lowerCat}-total`);
+          const elemFlr = document.getElementById(`stat-${lowerCat}-floor`);
+          const elemStb = document.getElementById(`stat-${lowerCat}-standby`);
+
+          if (elemTot) elemTot.innerText = `Tot: ${stats[cat].total}`;
+          if (elemFlr) elemFlr.innerText = stats[cat].floor;
+          if (elemStb) elemStb.innerText = stats[cat].standby;
+        });
+      } catch (err) {}
+    }
+
+    // FUNGSI FITUR CARI RIWAYAT
+    async function doSearch() {
+      const query = inputSearch.value.trim().toUpperCase();
+      if (!query) return;
+
+      tableSearch.innerHTML = '<tr><td colspan="5" class="p-3 text-center text-slate-400">Mencari...</td></tr>';
+      searchResultContainer.classList.remove('hidden');
+
+      const { data } = await supabaseClient.from('peminjaman')
+        .select('*')
+        .or(`ops_id.ilike.%${query}%,no_asset.ilike.%${query}%`)
+        .order('tgl_pinjam', { ascending: false })
+        .limit(15);
+
+      if (!data || data.length === 0) {
+        tableSearch.innerHTML = '<tr><td colspan="5" class="p-3 text-center text-amber-400">Riwayat tidak ditemukan.</td></tr>';
+        return;
+      }
+
+      const opsMap = await fetchMasterOpsMap(data.map(d => d.ops_id));
+
+      tableSearch.innerHTML = data.map(i => `
+        <tr class="hover:bg-slate-800/50 border-b border-slate-800">
+          <td class="p-2 font-mono text-slate-400">${new Date(i.tgl_pinjam).toLocaleString('id-ID')}</td>
+          <td class="p-2 font-bold text-amber-400 font-mono">${i.no_asset}</td>
+          <td class="p-2">${formatOpsDisplay(i.ops_id, opsMap, i.mother_team, i.group_team)}</td>
+          <td class="p-2 font-mono text-slate-400">${i.tgl_kembali ? new Date(i.tgl_kembali).toLocaleString('id-ID') : '-'}</td>
+          <td class="p-2 font-bold ${i.status_transaksi === 'DIPINJAM' ? 'text-orange-400' : 'text-emerald-400'}">${i.status_transaksi}</td>
+        </tr>
+      `).join('');
     }
 
     async function checkPinjamOpsPreview() {
@@ -404,7 +515,6 @@
       previewPinjamOps.classList.remove('hidden');
     }
 
-    // --- FUNGSI THUMBNAIL PREVIEW PENGEMBALIAN ---
     async function checkKembaliOpsPreview() {
       const opsId = kembaliOps.value.trim().toUpperCase();
       
@@ -519,6 +629,8 @@
       `).join('') : '<tr><td colspan="4" class="p-3 text-slate-500 text-center">Tidak ada aset dipinjam 🎉</td></tr>';
     }
 
+    // LOAD INITIAL DATA
+    loadAssetStats();
     refreshCardMonitoringOnly();
     setInterval(refreshCardMonitoringOnly, 120000);
   </script>
