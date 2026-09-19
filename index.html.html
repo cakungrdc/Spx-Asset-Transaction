@@ -41,7 +41,7 @@
     </div>
 
     <!-- HIGHLIGHT STATS -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5">
       <!-- PDA -->
       <div class="bg-slate-900 border border-orange-500/30 rounded-lg p-2 shadow space-y-1">
         <div class="flex items-center justify-between border-b border-slate-800 pb-1">
@@ -149,6 +149,25 @@
           </div>
         </div>
       </div>
+
+      <!-- DONGLE WIFI -->
+      <div class="bg-slate-900 border border-cyan-500/30 rounded-lg p-2 shadow space-y-1">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1">
+          <span class="text-[10px] font-bold text-cyan-400">📶 WIFI</span>
+          <span id="stat-wifi-total" class="text-[8px] bg-cyan-500/10 text-cyan-300 px-1 py-0.2 rounded font-mono">Tot: 92</span>
+        </div>
+        <div class="grid grid-cols-2 gap-1 text-center">
+          <div class="bg-slate-950/80 p-1 rounded border border-slate-800">
+            <p class="text-[7px] text-slate-400 font-bold">FLR</p>
+            <h3 id="stat-wifi-floor" class="text-sm font-black text-cyan-400 font-mono">0</h3>
+          </div>
+          <div class="bg-slate-950/80 p-1 rounded border border-emerald-500/30">
+            <p class="text-[7px] text-emerald-400 font-bold">STBY</p>
+            <h3 id="stat-wifi-standby" class="text-sm font-black text-emerald-400 font-mono">0</h3>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- MONITORING KARTU AKSES (AUTOMATIC STANDBY 120 DETIK) -->
@@ -332,7 +351,7 @@
           <label class="block text-[10px] text-slate-400 mb-1">BARCODE / NO ASET *</label>
           <input type="text" id="new-no-asset" 
             class="w-full bg-slate-950 border border-slate-700 focus:border-orange-500 rounded-lg p-2.5 text-xs text-white font-mono uppercase focus:outline-none" 
-            placeholder="Contoh: PDA-042 / HT-012" autocomplete="off">
+            placeholder="Contoh: PDA-042 / HT-012 / WIFI-001" autocomplete="off">
         </div>
 
         <div>
@@ -344,6 +363,7 @@
             <option value="TANG">🛠️ TANG</option>
             <option value="METERAN">📏 METERAN</option>
             <option value="TOA">📢 TOA</option>
+            <option value="WIFI">📶 WIFI (Dongle Wifi)</option>
             <option value="CARD">💳 KARTU AKSES (CARD)</option>
             <option value="LAINNYA">📦 LAIN-LAIN</option>
           </select>
@@ -394,7 +414,7 @@
     const CARD_LIST = Array.from({ length: 11 }, (_, i) => `CARD-${String(i + 1).padStart(2, '0')}`);
 
     let CACHE_MASTER_ASSETS = [];
-    let CACHE_TOTAL_COUNTS = { pda: 0, ht: 0, kp: 9, tang: 0, meteran: 0, toa: 0 };
+    let CACHE_TOTAL_COUNTS = { pda: 0, ht: 0, kp: 9, tang: 0, meteran: 0, toa: 0, wifi: 92 };
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -885,6 +905,7 @@
           { count: totalTang },
           { count: totalMeteran },
           { count: totalToa },
+          { count: totalWifi },
           { data: masterAllAssets }
         ] = await Promise.all([
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%PDA%'),
@@ -893,6 +914,7 @@
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%TANG%'),
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%METERAN%'),
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%TOA%'),
+          supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%WIFI%'),
           supabaseClient.from('master_aset').select('no_asset, asset_id')
         ]);
 
@@ -902,7 +924,8 @@
           kp: totalKp || 9,
           tang: totalTang || 0,
           meteran: totalMeteran || 0,
-          toa: totalToa || 0
+          toa: totalToa || 0,
+          wifi: totalWifi || 92
         };
 
         CACHE_MASTER_ASSETS = masterAllAssets || [];
@@ -913,6 +936,7 @@
         document.getElementById('stat-tang-total').innerText = `Tot: ${CACHE_TOTAL_COUNTS.tang}`;
         document.getElementById('stat-meteran-total').innerText = `Tot: ${CACHE_TOTAL_COUNTS.meteran}`;
         document.getElementById('stat-toa-total').innerText = `Tot: ${CACHE_TOTAL_COUNTS.toa}`;
+        document.getElementById('stat-wifi-total').innerText = `Tot: ${CACHE_TOTAL_COUNTS.wifi}`;
       } catch (e) {
         console.error("Gagal init master:", e);
       }
@@ -949,7 +973,7 @@
         refreshCardMonitoringOnly();
 
         // STATS FLOOR & STANDBY
-        let pdaFloor = 0, htFloor = 0, kpFloor = 0, tangFloor = 0, meteranFloor = 0, toaFloor = 0;
+        let pdaFloor = 0, htFloor = 0, kpFloor = 0, tangFloor = 0, meteranFloor = 0, toaFloor = 0, wifiFloor = 0;
         let masterMap = {};
         CACHE_MASTER_ASSETS.forEach(m => { masterMap[m.no_asset] = m.asset_id || ''; });
 
@@ -965,6 +989,7 @@
             else if (combinedString.includes('TANG')) tangFloor++;
             else if (combinedString.includes('METERAN')) meteranFloor++;
             else if (combinedString.includes('TOA')) toaFloor++;
+            else if (combinedString.includes('WIFI') || combinedString.includes('DONGLE')) wifiFloor++;
           });
         }
 
@@ -985,6 +1010,9 @@
 
         document.getElementById('stat-toa-floor').innerText = toaFloor;
         document.getElementById('stat-toa-standby').innerText = Math.max(0, CACHE_TOTAL_COUNTS.toa - toaFloor);
+
+        document.getElementById('stat-wifi-floor').innerText = wifiFloor;
+        document.getElementById('stat-wifi-standby').innerText = Math.max(0, CACHE_TOTAL_COUNTS.wifi - wifiFloor);
 
         // RENDERING TABEL OVERDUE
         const overdueTbody = document.getElementById('table-overdue');
