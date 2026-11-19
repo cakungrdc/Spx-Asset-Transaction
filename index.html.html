@@ -404,10 +404,10 @@
         <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3 space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-[11px] font-bold text-sky-400">1. Download Template Excel (2 Sheet)</span>
-            <span class="text-[9px] bg-sky-500/10 text-sky-300 px-1.5 py-0.5 rounded border border-sky-500/20">Auto Merah & Dropdown</span>
+            <span class="text-[9px] bg-sky-500/10 text-sky-300 px-1.5 py-0.5 rounded border border-sky-500/20">Unlimited Data</span>
           </div>
           <p class="text-[10px] text-slate-400 leading-relaxed">
-            Berisi Sheet <strong>Template_Aset</strong> (Dropdown Kategori + Auto Merah jika No Aset sudah ada/dobel) & Sheet <strong>Database_Eksisting</strong> (data real-time dari server).
+            Berisi Sheet <strong>Template_Aset</strong> (Dropdown Kategori + Auto Merah jika No Aset sudah ada/dobel) & Sheet <strong>Database_Eksisting</strong> (seluruh data aset dari server tanpa batas 1.000 baris).
           </p>
           <button id="btn-download-template" class="w-full py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 shadow">
             📥 Download Template Excel (.xlsx)
@@ -490,6 +490,28 @@
     let CACHE_MASTER_ASSETS = [];
     let CACHE_TOTAL_COUNTS = { pda: 0, ht: 0, kp: 9, tang: 0, meteran: 0, toa: 0, wifi: 92 };
 
+    // FUNGSI HELPER: AMBIL SELURUH DATA MASTER_ASET TANPA LIMIT 1000 BARIS SUPABASE
+    async function fetchAllMasterAset(selectColumns = 'no_asset, asset_id, serial_number') {
+      let allRows = [];
+      let from = 0;
+      const step = 1000;
+      while (true) {
+        const { data, error } = await supabaseClient
+          .from('master_aset')
+          .select(selectColumns)
+          .order('no_asset', { ascending: true })
+          .range(from, from + step - 1);
+
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+
+        allRows = allRows.concat(data);
+        if (data.length < step) break; // Sudah mencapai halaman terakhir
+        from += step;
+      }
+      return allRows;
+    }
+
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playSound(type) {
@@ -565,21 +587,16 @@
       panelSingleAsset.classList.add('hidden');
     });
 
-    // DOWNLOAD TEMPLATE EXCEL (2 SHEET: Template_Aset + Database_Eksisting + AUTO MERAH DUPLIKAT)
+    // DOWNLOAD TEMPLATE EXCEL (2 SHEET: Template_Aset + Database_Eksisting UNLIMITED + AUTO MERAH DUPLIKAT)
     document.getElementById('btn-download-template').addEventListener('click', async () => {
       const btnDl = document.getElementById('btn-download-template');
       const oriText = btnDl.innerText;
-      btnDl.innerText = '⏳ Mengambil Data Database Terbaru...';
+      btnDl.innerText = '⏳ Mengambil Seluruh Data Database...';
       btnDl.disabled = true;
 
       try {
-        // Tarik seluruh data master_aset terbaru dari Supabase
-        const { data: latestAssets, error } = await supabaseClient
-          .from('master_aset')
-          .select('no_asset, asset_id, serial_number')
-          .order('no_asset', { ascending: true });
-
-        if (error) throw error;
+        // Tarik SELURUH data master_aset terbaru dari Supabase (lebih dari 1000 baris)
+        const latestAssets = await fetchAllMasterAset('no_asset, asset_id, serial_number');
 
         const workbook = new ExcelJS.Workbook();
         
@@ -604,9 +621,9 @@
         // Contoh Pengisian
         sheet1.addRow({ no_asset: 'CONTOH-PDA-999', kategori: 'PDA', serial_number: 'SN-TC26X99901' });
 
-        // Dropdown Kategori di Kolom B (B2:B500)
+        // Dropdown Kategori di Kolom B (B2:B1000)
         const dropdownFormula = `"${ALLOWED_CATEGORIES.join(',')}"`;
-        for (let i = 2; i <= 500; i++) {
+        for (let i = 2; i <= 1000; i++) {
           sheet1.getCell(`B${i}`).dataValidation = {
             type: 'list',
             allowBlank: false,
@@ -648,14 +665,14 @@
 
         // ==========================================
         // CONDITIONAL FORMATTING: AUTO MERAH JIKA DUPLIKAT
-        // Cek apakah A2 sudah ada di Database_Eksisting!$A$2:$A$10000 ATAU dobel di $A$2:$A$500
+        // Jangkauan diperluas sampai $A$50000 agar menampung ribuan aset
         // ==========================================
         sheet1.addConditionalFormatting({
-          ref: 'A2:A500',
+          ref: 'A2:A1000',
           rules: [
             {
               type: 'expression',
-              formulae: ['AND(A2<>"", (COUNTIF(Database_Eksisting!$A$2:$A$10000, A2) + COUNTIF($A$2:$A$500, A2)) > 1)'],
+              formulae: ['AND(A2<>"", (COUNTIF(Database_Eksisting!$A$2:$A$50000, A2) + COUNTIF($A$2:$A$1000, A2)) > 1)'],
               style: {
                 fill: {
                   type: 'pattern',
@@ -710,18 +727,13 @@
       }
 
       const btnUpload = document.getElementById('btn-upload-bulk');
-      btnUpload.innerText = '⏳ Mengecek Database...';
+      btnUpload.innerText = '⏳ Mengecek Seluruh Database...';
       btnUpload.disabled = true;
       bulkReportBox.classList.add('hidden');
 
       try {
-        // 1. Ambil seluruh No Aset eksisting dari Supabase agar 100% akurat
-        const { data: existingData, error: fetchErr } = await supabaseClient
-          .from('master_aset')
-          .select('no_asset');
-
-        if (fetchErr) throw fetchErr;
-
+        // 1. Ambil SELURUH No Aset eksisting dari Supabase (Unlimited Pagination) agar 100% akurat
+        const existingData = await fetchAllMasterAset('no_asset');
         const existingSet = new Set((existingData || []).map(x => (x.no_asset || '').trim().toUpperCase()));
 
         // 2. Baca file Excel/CSV user (Selalu baca Sheet pertama: Template_Aset)
@@ -821,20 +833,26 @@
     });
 
     async function executeBulkInsert(payload) {
-      const { error } = await supabaseClient
-        .from('master_aset')
-        .insert(payload);
+      // Insert per batch 500 agar aman jika jumlah upload sangat besar
+      const batchSize = 500;
+      for (let i = 0; i < payload.length; i += batchSize) {
+        const chunk = payload.slice(i, i + batchSize);
+        const { error } = await supabaseClient
+          .from('master_aset')
+          .insert(chunk);
 
-      if (error) {
-        playSound('error');
-        alert(`❌ Error Database: ${error.message}`);
-      } else {
-        playSound('success');
-        showAlert(`🎉 Sukses! ${payload.length} aset baru berhasil didaftarkan sekaligus.`, true);
-        PENDING_VALID_BULK_PAYLOAD = [];
-        closeModalAddAsset();
-        await initMasterData();
+        if (error) {
+          playSound('error');
+          alert(`❌ Error Database pada batch ${Math.floor(i / batchSize) + 1}: ${error.message}`);
+          return;
+        }
       }
+
+      playSound('success');
+      showAlert(`🎉 Sukses! ${payload.length} aset baru berhasil didaftarkan sekaligus.`, true);
+      PENDING_VALID_BULK_PAYLOAD = [];
+      closeModalAddAsset();
+      await initMasterData();
     }
 
     document.getElementById('btn-open-add-asset').addEventListener('click', () => {
@@ -1276,7 +1294,7 @@
           { count: totalMeteran },
           { count: totalToa },
           { count: totalWifi },
-          { data: masterAllAssets }
+          masterAllAssets
         ] = await Promise.all([
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%PDA%'),
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%HT%'),
@@ -1285,7 +1303,7 @@
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%METERAN%'),
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%TOA%'),
           supabaseClient.from('master_aset').select('*', { count: 'exact', head: true }).ilike('asset_id', '%WIFI%'),
-          supabaseClient.from('master_aset').select('no_asset, asset_id')
+          fetchAllMasterAset('no_asset, asset_id')
         ]);
 
         CACHE_TOTAL_COUNTS = {
