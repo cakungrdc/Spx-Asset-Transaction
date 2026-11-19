@@ -315,6 +315,15 @@
       </div>
       <div id="search-result-container" class="hidden border-t border-slate-800 pt-2 overflow-x-auto">
         <table class="w-full text-left text-xs text-slate-300 whitespace-nowrap">
+          <thead class="text-[10px] text-slate-400 border-b border-slate-800">
+            <tr>
+              <th class="p-2">Waktu Pinjam</th>
+              <th class="p-2">Waktu Kembali</th>
+              <th class="p-2">No Asset</th>
+              <th class="p-2">Peminjam / Team</th>
+              <th class="p-2">Status</th>
+            </tr>
+          </thead>
           <tbody id="table-search" class="divide-y divide-slate-800"></tbody>
         </table>
       </div>
@@ -595,14 +604,11 @@
       btnDl.disabled = true;
 
       try {
-        // Tarik SELURUH data master_aset terbaru dari Supabase (lebih dari 1000 baris)
         const latestAssets = await fetchAllMasterAset('no_asset, asset_id, serial_number');
 
         const workbook = new ExcelJS.Workbook();
         
-        // ==========================================
         // SHEET 1: Template_Aset
-        // ==========================================
         const sheet1 = workbook.addWorksheet('Template_Aset');
         sheet1.columns = [
           { header: 'BARCODE / NO ASET', key: 'no_asset', width: 28 },
@@ -615,13 +621,11 @@
         headerRow1.fill = {
           type: 'pattern',
           pattern: 'solid',
-          fgColor: { argb: 'FFEA580C' } // Orange SPX
+          fgColor: { argb: 'FFEA580C' }
         };
 
-        // Contoh Pengisian
         sheet1.addRow({ no_asset: 'CONTOH-PDA-999', kategori: 'PDA', serial_number: 'SN-TC26X99901' });
 
-        // Dropdown Kategori di Kolom B (B2:B1000)
         const dropdownFormula = `"${ALLOWED_CATEGORIES.join(',')}"`;
         for (let i = 2; i <= 1000; i++) {
           sheet1.getCell(`B${i}`).dataValidation = {
@@ -635,9 +639,7 @@
           };
         }
 
-        // ==========================================
         // SHEET 2: Database_Eksisting
-        // ==========================================
         const sheet2 = workbook.addWorksheet('Database_Eksisting');
         sheet2.columns = [
           { header: 'NO ASET EKSISTING', key: 'no_asset', width: 28 },
@@ -650,7 +652,7 @@
         headerRow2.fill = {
           type: 'pattern',
           pattern: 'solid',
-          fgColor: { argb: 'FF0F172A' } // Dark Slate
+          fgColor: { argb: 'FF0F172A' }
         };
 
         if (latestAssets && latestAssets.length > 0) {
@@ -663,10 +665,7 @@
           });
         }
 
-        // ==========================================
         // CONDITIONAL FORMATTING: AUTO MERAH JIKA DUPLIKAT
-        // Jangkauan diperluas sampai $A$50000 agar menampung ribuan aset
-        // ==========================================
         sheet1.addConditionalFormatting({
           ref: 'A2:A1000',
           rules: [
@@ -677,10 +676,10 @@
                 fill: {
                   type: 'pattern',
                   pattern: 'solid',
-                  bgColor: { argb: 'FFFFC7CE' } // Background Merah Muda Excel
+                  bgColor: { argb: 'FFFFC7CE' }
                 },
                 font: {
-                  color: { argb: 'FF9C0006' }, // Teks Merah Tua Bold
+                  color: { argb: 'FF9C0006' },
                   bold: true
                 }
               }
@@ -732,11 +731,9 @@
       bulkReportBox.classList.add('hidden');
 
       try {
-        // 1. Ambil SELURUH No Aset eksisting dari Supabase (Unlimited Pagination) agar 100% akurat
         const existingData = await fetchAllMasterAset('no_asset');
         const existingSet = new Set((existingData || []).map(x => (x.no_asset || '').trim().toUpperCase()));
 
-        // 2. Baca file Excel/CSV user (Selalu baca Sheet pertama: Template_Aset)
         const data = await file.arrayBuffer();
         const workbook = XLSX.read(data, { type: 'array' });
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -756,21 +753,18 @@
           const rawCat = (row['KATEGORI'] || row['ASSET_ID'] || row['asset_id'] || Object.values(row)[1] || '').toString().trim().toUpperCase();
           const rawSn = (row['SERIAL NUMBER (SN)'] || row['SERIAL NUMBER'] || row['SN'] || row['serial_number'] || Object.values(row)[2] || '').toString().trim().toUpperCase();
 
-          if (!rawAsset) return; // Skip baris kosong
+          if (!rawAsset) return;
 
-          // Cek apakah sudah ada di Database Supabase
           if (existingSet.has(rawAsset)) {
             errorDetails.push(`• Baris ${excelRowNum} | <span class="text-amber-300 font-bold">${rawAsset}</span> ➔ Sudah ada di Database`);
             return;
           }
 
-          // Cek apakah dobel di dalam file Excel itu sendiri
           if (seenInFile.has(rawAsset)) {
             errorDetails.push(`• Baris ${excelRowNum} | <span class="text-amber-300 font-bold">${rawAsset}</span> ➔ Dobel di dalam file Excel`);
             return;
           }
 
-          // Cek apakah kategori valid
           if (!ALLOWED_CATEGORIES.includes(rawCat)) {
             errorDetails.push(`• Baris ${excelRowNum} | <span class="text-amber-300 font-bold">${rawAsset}</span> ➔ Kategori '${rawCat || 'KOSONG'}' tidak valid`);
             return;
@@ -784,7 +778,6 @@
           });
         });
 
-        // 3. Jika ada error / duplikat, tampilkan daftar rinciannya
         if (errorDetails.length > 0) {
           playSound('error');
           PENDING_VALID_BULK_PAYLOAD = validPayload;
@@ -808,7 +801,6 @@
           throw new Error("Tidak ada data baru yang siap diupload.");
         }
 
-        // 4. Jika semua bersih tanpa duplikat, langsung insert!
         await executeBulkInsert(validPayload);
 
       } catch (err) {
@@ -820,7 +812,6 @@
       }
     });
 
-    // TOMBOL SIMPAN DATA VALID SAJA (LEWATI DUPLIKAT)
     btnUploadValidOnly.addEventListener('click', async () => {
       if (PENDING_VALID_BULK_PAYLOAD.length === 0) return;
       btnUploadValidOnly.disabled = true;
@@ -833,7 +824,6 @@
     });
 
     async function executeBulkInsert(payload) {
-      // Insert per batch 500 agar aman jika jumlah upload sangat besar
       const batchSize = 500;
       for (let i = 0; i < payload.length; i += batchSize) {
         const chunk = payload.slice(i, i + batchSize);
@@ -883,7 +873,6 @@
         bulkReportBox.classList.add('hidden');
         PENDING_VALID_BULK_PAYLOAD = [];
         
-        // Default buka tab satuan
         tabSingleAsset.click();
 
         modalAddAsset.classList.remove('hidden');
@@ -942,6 +931,7 @@
       }
     }
 
+    // PREVIEW FORM PEMINJAMAN + HITUNG PEMINJAMAN KARTU AKSES 1x24 JAM
     async function checkPinjamOpsPreview() {
       const opsId = pinjamOps.value.trim().toUpperCase();
       if (!opsId || !isValidOpsFormat(opsId)) {
@@ -949,23 +939,55 @@
         return;
       }
 
-      const { data } = await supabaseClient
-        .from('master_ops')
-        .select('nama, mother_team, group_team')
-        .ilike('ops_id', opsId)
-        .maybeSingle();
+      // Hitung batas waktu 24 jam ke belakang dari sekarang
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-      if (data) {
-        const teamInfo = [data.mother_team, data.group_team].filter(Boolean).join(' / ') || 'Tidak ada tim';
+      const [
+        { data: masterData },
+        { count: cardLoanCount24h }
+      ] = await Promise.all([
+        supabaseClient
+          .from('master_ops')
+          .select('nama, mother_team, group_team')
+          .ilike('ops_id', opsId)
+          .maybeSingle(),
+
+        supabaseClient
+          .from('peminjaman')
+          .select('*', { count: 'exact', head: true })
+          .ilike('ops_id', opsId)
+          .ilike('no_asset', 'CARD%')
+          .gte('tgl_pinjam', twentyFourHoursAgo)
+      ]);
+
+      const totalCard24h = cardLoanCount24h || 0;
+      const cardBadgeStyle = totalCard24h >= 3
+        ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+        : totalCard24h > 0
+          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+          : 'bg-slate-800 text-slate-300 border-slate-700';
+
+      const cardBadgeHtml = `<span class="text-[10px] font-bold px-1.5 py-0.5 rounded border ${cardBadgeStyle}">💳 x${totalCard24h} Kartu Akses</span>`;
+
+      if (masterData) {
+        const teamInfo = [masterData.mother_team, masterData.group_team].filter(Boolean).join(' / ') || 'Tidak ada tim';
         previewPinjamOps.innerHTML = `
-          <div class="flex items-center justify-between text-emerald-400">
-            <span class="font-bold">👤 ${data.nama}</span>
+          <div class="flex flex-wrap items-center justify-between gap-2 text-emerald-400">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="font-bold">👤 ${masterData.nama}</span>
+              ${cardBadgeHtml}
+            </div>
             <span class="text-[10px] bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30">🏷️ ${teamInfo}</span>
           </div>
         `;
         previewPinjamOps.classList.remove('hidden');
       } else {
-        previewPinjamOps.innerHTML = `<span class="text-amber-400">⚠️ OPS ID (${opsId}) belum terdaftar di Master OPS</span>`;
+        previewPinjamOps.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 text-amber-400">
+            <span>⚠️ OPS ID (${opsId}) belum terdaftar di Master OPS</span>
+            ${cardBadgeHtml}
+          </div>
+        `;
         previewPinjamOps.classList.remove('hidden');
       }
     }
@@ -1237,7 +1259,6 @@
           previewElem.classList.add('hidden');
           opsInput.focus();
 
-          // Pemicu otomatis refresh Kartu Akses jika yang diproses adalah Kartu
           if (noAsset.startsWith('CARD')) {
             refreshCardMonitoringOnly();
           }
@@ -1247,6 +1268,7 @@
       }
     }
 
+    // CARI RIWAYAT SPESIFIK (MENAMPILKAN WAKTU PINJAM & WAKTU PENGEMBALIAN)
     async function cariSpesifik() {
       const keyword = document.getElementById('input-search').value.trim().toUpperCase();
       const container = document.getElementById('search-result-container');
@@ -1256,32 +1278,43 @@
 
       const { data } = await supabaseClient
         .from('peminjaman')
-        .select('ops_id, no_asset, tgl_pinjam, status_transaksi, mother_team, group_team')
+        .select('ops_id, no_asset, tgl_pinjam, tgl_kembali, status_transaksi, mother_team, group_team')
         .or(`ops_id.ilike.%${keyword}%,no_asset.ilike.%${keyword}%`)
         .order('tgl_pinjam', { ascending: false })
         .limit(15);
 
       if (!data || data.length === 0) {
         container.classList.remove('hidden');
-        tbody.innerHTML = '<tr><td class="p-2 text-slate-500">Tidak ada riwayat ditemukan</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="p-2 text-slate-500">Tidak ada riwayat ditemukan</td></tr>';
         return;
       }
 
       const opsMap = await fetchMasterOpsMap(data.map(d => d.ops_id));
 
       container.classList.remove('hidden');
-      tbody.innerHTML = data.map(i => `
-        <tr class="hover:bg-slate-800/50">
-          <td class="p-2 text-slate-400 font-mono">${new Date(i.tgl_pinjam).toLocaleString('id-ID')}</td>
-          <td class="p-2 font-bold text-orange-400 font-mono">${i.no_asset}</td>
-          <td class="p-2">${formatOpsDisplay(i.ops_id, opsMap, i.mother_team, i.group_team)}</td>
-          <td class="p-2">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.status_transaksi === 'DIPINJAM' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">
-              ${i.status_transaksi === 'DIPINJAM' ? 'OUT' : 'IN'}
-            </span>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = data.map(i => {
+        const waktuPinjam = i.tgl_pinjam
+          ? new Date(i.tgl_pinjam).toLocaleString('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+          : '-';
+
+        const waktuKembali = i.tgl_kembali
+          ? new Date(i.tgl_kembali).toLocaleString('id-ID', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+          : '<span class="text-slate-600 italic">Belum kembali</span>';
+
+        return `
+          <tr class="hover:bg-slate-800/50">
+            <td class="p-2 text-slate-300 font-mono">${waktuPinjam}</td>
+            <td class="p-2 text-emerald-400 font-mono">${waktuKembali}</td>
+            <td class="p-2 font-bold text-orange-400 font-mono">${i.no_asset}</td>
+            <td class="p-2">${formatOpsDisplay(i.ops_id, opsMap, i.mother_team, i.group_team)}</td>
+            <td class="p-2">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${i.status_transaksi === 'DIPINJAM' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">
+                ${i.status_transaksi === 'DIPINJAM' ? 'OUT' : 'IN'}
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     async function initMasterData() {
