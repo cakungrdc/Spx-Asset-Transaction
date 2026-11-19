@@ -6,7 +6,7 @@
   <title>SPX ASSET TRANSACTION - Ultra Low Egress (120s Card Sync)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Library ExcelJS & SheetJS untuk Download Template Excel dengan Dropdown & Upload Bulk -->
+  <!-- Library ExcelJS & SheetJS untuk Download Template Excel dengan Dropdown, Conditional Formatting & Upload Bulk -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
@@ -344,7 +344,7 @@
 
   <!-- MODAL REGISTER ASET (SATUAN & BULK UPLOAD/DOWNLOAD) -->
   <div id="modal-add-asset" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 max-w-md w-full space-y-4 shadow-2xl">
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 max-w-lg w-full space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
       <div class="flex justify-between items-center border-b border-slate-800 pb-2">
         <h3 class="text-sm font-bold text-orange-400 flex items-center gap-2">➕ Register Aset Baru</h3>
         <button id="btn-close-modal" class="text-slate-400 hover:text-slate-200 text-sm font-bold">✕</button>
@@ -403,11 +403,11 @@
       <div id="panel-bulk-asset" class="hidden space-y-3">
         <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3 space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-[11px] font-bold text-sky-400">1. Download Template Excel</span>
-            <span class="text-[9px] bg-sky-500/10 text-sky-300 px-1.5 py-0.5 rounded border border-sky-500/20">Auto Dropdown</span>
+            <span class="text-[11px] font-bold text-sky-400">1. Download Template Excel (2 Sheet)</span>
+            <span class="text-[9px] bg-sky-500/10 text-sky-300 px-1.5 py-0.5 rounded border border-sky-500/20">Auto Merah & Dropdown</span>
           </div>
           <p class="text-[10px] text-slate-400 leading-relaxed">
-            Template sudah dilengkapi <strong>Dropdown Kategori</strong> otomatis (PDA, HT, KP, TANG, METERAN, TOA, WIFI, CARD, LAINNYA) di kolom Kategori.
+            Berisi Sheet <strong>Template_Aset</strong> (Dropdown Kategori + Auto Merah jika No Aset sudah ada/dobel) & Sheet <strong>Database_Eksisting</strong> (data real-time dari server).
           </p>
           <button id="btn-download-template" class="w-full py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-lg transition flex items-center justify-center gap-1.5 shadow">
             📥 Download Template Excel (.xlsx)
@@ -421,10 +421,22 @@
           <div id="bulk-preview-info" class="hidden text-[10px] p-2 rounded bg-slate-900 border border-slate-700 text-slate-300"></div>
         </div>
 
+        <!-- AREA LAPORAN ERROR / DUPLIKAT DETAIL -->
+        <div id="bulk-report-box" class="hidden bg-rose-950/50 border border-rose-500/50 rounded-lg p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <span id="bulk-report-title" class="text-[11px] font-bold text-rose-400">⚠️ Ditemukan Data Duplikat / Error</span>
+            <span id="bulk-valid-count" class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30 font-mono"></span>
+          </div>
+          <div id="bulk-report-list" class="max-h-32 overflow-y-auto custom-scrollbar text-[10px] font-mono text-rose-200 bg-slate-950/80 p-2 rounded border border-rose-500/30 space-y-1"></div>
+          <button id="btn-upload-valid-only" class="hidden w-full py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg transition shadow">
+            ⚡ Lewati yang Duplikat & Simpan Data Valid Saja
+          </button>
+        </div>
+
         <div class="flex justify-end gap-2 border-t border-slate-800 pt-3">
           <button id="btn-cancel-bulk" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg font-bold">Batal</button>
           <button id="btn-upload-bulk" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded-lg font-bold transition shadow-lg shadow-emerald-600/30">
-            🚀 Upload & Simpan Semua
+            🚀 Cek & Upload Semua
           </button>
         </div>
       </div>
@@ -465,6 +477,13 @@
     const panelBulkAsset = document.getElementById('panel-bulk-asset');
     const bulkFileInput = document.getElementById('bulk-file-input');
     const bulkPreviewInfo = document.getElementById('bulk-preview-info');
+    const bulkReportBox = document.getElementById('bulk-report-box');
+    const bulkReportTitle = document.getElementById('bulk-report-title');
+    const bulkValidCount = document.getElementById('bulk-valid-count');
+    const bulkReportList = document.getElementById('bulk-report-list');
+    const btnUploadValidOnly = document.getElementById('btn-upload-valid-only');
+
+    let PENDING_VALID_BULK_PAYLOAD = [];
 
     const CARD_LIST = Array.from({ length: 11 }, (_, i) => `CARD-${String(i + 1).padStart(2, '0')}`);
 
@@ -546,57 +565,134 @@
       panelSingleAsset.classList.add('hidden');
     });
 
-    // DOWNLOAD TEMPLATE EXCEL DENGAN DROPDOWN KATEGORI
+    // DOWNLOAD TEMPLATE EXCEL (2 SHEET: Template_Aset + Database_Eksisting + AUTO MERAH DUPLIKAT)
     document.getElementById('btn-download-template').addEventListener('click', async () => {
-      const workbook = new ExcelJS.Workbook();
-      const sheet = workbook.addWorksheet('Template_Aset');
+      const btnDl = document.getElementById('btn-download-template');
+      const oriText = btnDl.innerText;
+      btnDl.innerText = '⏳ Mengambil Data Database Terbaru...';
+      btnDl.disabled = true;
 
-      sheet.columns = [
-        { header: 'BARCODE / NO ASET', key: 'no_asset', width: 25 },
-        { header: 'KATEGORI', key: 'kategori', width: 20 },
-        { header: 'SERIAL NUMBER (SN)', key: 'serial_number', width: 28 }
-      ];
+      try {
+        // Tarik seluruh data master_aset terbaru dari Supabase
+        const { data: latestAssets, error } = await supabaseClient
+          .from('master_aset')
+          .select('no_asset, asset_id, serial_number')
+          .order('no_asset', { ascending: true });
 
-      // Styling Header
-      const headerRow = sheet.getRow(1);
-      headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      headerRow.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FFEA580C' } // Orange SPX
-      };
+        if (error) throw error;
 
-      // Contoh Data Baris 2 & 3
-      sheet.addRow({ no_asset: 'PDA-099', kategori: 'PDA', serial_number: 'SN-TC26X99901' });
-      sheet.addRow({ no_asset: 'HT-050', kategori: 'HT', serial_number: 'SN-HT50002' });
+        const workbook = new ExcelJS.Workbook();
+        
+        // ==========================================
+        // SHEET 1: Template_Aset
+        // ==========================================
+        const sheet1 = workbook.addWorksheet('Template_Aset');
+        sheet1.columns = [
+          { header: 'BARCODE / NO ASET', key: 'no_asset', width: 28 },
+          { header: 'KATEGORI', key: 'kategori', width: 20 },
+          { header: 'SERIAL NUMBER (SN)', key: 'serial_number', width: 30 }
+        ];
 
-      // Tambahkan Dropdown Data Validation pada kolom B (KATEGORI) dari baris 2 sampai 500
-      const dropdownFormula = `"${ALLOWED_CATEGORIES.join(',')}"`;
-      for (let i = 2; i <= 500; i++) {
-        sheet.getCell(`B${i}`).dataValidation = {
-          type: 'list',
-          allowBlank: false,
-          formulae: [dropdownFormula],
-          showErrorMessage: true,
-          errorStyle: 'stop',
-          errorTitle: 'Kategori Tidak Valid',
-          error: `Pilih kategori dari dropdown: ${ALLOWED_CATEGORIES.join(', ')}`
+        const headerRow1 = sheet1.getRow(1);
+        headerRow1.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        headerRow1.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFEA580C' } // Orange SPX
         };
-      }
 
-      const buffer = await workbook.xlsx.writeBuffer();
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Template_Upload_Aset_SPX.xlsx';
-      a.click();
-      URL.revokeObjectURL(url);
+        // Contoh Pengisian
+        sheet1.addRow({ no_asset: 'CONTOH-PDA-999', kategori: 'PDA', serial_number: 'SN-TC26X99901' });
+
+        // Dropdown Kategori di Kolom B (B2:B500)
+        const dropdownFormula = `"${ALLOWED_CATEGORIES.join(',')}"`;
+        for (let i = 2; i <= 500; i++) {
+          sheet1.getCell(`B${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: false,
+            formulae: [dropdownFormula],
+            showErrorMessage: true,
+            errorStyle: 'stop',
+            errorTitle: 'Kategori Tidak Valid',
+            error: `Pilih kategori dari dropdown: ${ALLOWED_CATEGORIES.join(', ')}`
+          };
+        }
+
+        // ==========================================
+        // SHEET 2: Database_Eksisting
+        // ==========================================
+        const sheet2 = workbook.addWorksheet('Database_Eksisting');
+        sheet2.columns = [
+          { header: 'NO ASET EKSISTING', key: 'no_asset', width: 28 },
+          { header: 'KATEGORI', key: 'asset_id', width: 20 },
+          { header: 'SERIAL NUMBER (SN)', key: 'serial_number', width: 30 }
+        ];
+
+        const headerRow2 = sheet2.getRow(1);
+        headerRow2.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        headerRow2.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF0F172A' } // Dark Slate
+        };
+
+        if (latestAssets && latestAssets.length > 0) {
+          latestAssets.forEach(item => {
+            sheet2.addRow({
+              no_asset: (item.no_asset || '').toUpperCase(),
+              asset_id: (item.asset_id || '').toUpperCase(),
+              serial_number: (item.serial_number || '').toUpperCase()
+            });
+          });
+        }
+
+        // ==========================================
+        // CONDITIONAL FORMATTING: AUTO MERAH JIKA DUPLIKAT
+        // Cek apakah A2 sudah ada di Database_Eksisting!$A$2:$A$10000 ATAU dobel di $A$2:$A$500
+        // ==========================================
+        sheet1.addConditionalFormatting({
+          ref: 'A2:A500',
+          rules: [
+            {
+              type: 'expression',
+              formulae: ['AND(A2<>"", (COUNTIF(Database_Eksisting!$A$2:$A$10000, A2) + COUNTIF($A$2:$A$500, A2)) > 1)'],
+              style: {
+                fill: {
+                  type: 'pattern',
+                  pattern: 'solid',
+                  bgColor: { argb: 'FFFFC7CE' } // Background Merah Muda Excel
+                },
+                font: {
+                  color: { argb: 'FF9C0006' }, // Teks Merah Tua Bold
+                  bold: true
+                }
+              }
+            }
+          ]
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Template_Upload_Aset_SPX_${new Date().toISOString().slice(0,10)}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        alert(`❌ Gagal membuat template: ${err.message}`);
+      } finally {
+        btnDl.innerText = oriText;
+        btnDl.disabled = false;
+      }
     });
 
     // PREVIEW FILE BULK SAAT DIPILIH
     bulkFileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
+      bulkReportBox.classList.add('hidden');
+      PENDING_VALID_BULK_PAYLOAD = [];
+
       if (!file) {
         bulkPreviewInfo.classList.add('hidden');
         return;
@@ -605,7 +701,7 @@
       bulkPreviewInfo.classList.remove('hidden');
     });
 
-    // PROSES UPLOAD BULK EXCEL / CSV
+    // PROSES CEK & UPLOAD BULK EXCEL / CSV
     document.getElementById('btn-upload-bulk').addEventListener('click', async () => {
       const file = bulkFileInput.files[0];
       if (!file) {
@@ -614,10 +710,21 @@
       }
 
       const btnUpload = document.getElementById('btn-upload-bulk');
-      btnUpload.innerText = '⏳ Memproses...';
+      btnUpload.innerText = '⏳ Mengecek Database...';
       btnUpload.disabled = true;
+      bulkReportBox.classList.add('hidden');
 
       try {
+        // 1. Ambil seluruh No Aset eksisting dari Supabase agar 100% akurat
+        const { data: existingData, error: fetchErr } = await supabaseClient
+          .from('master_aset')
+          .select('no_asset');
+
+        if (fetchErr) throw fetchErr;
+
+        const existingSet = new Set((existingData || []).map(x => (x.no_asset || '').trim().toUpperCase()));
+
+        // 2. Baca file Excel/CSV user (Selalu baca Sheet pertama: Template_Aset)
         const data = await file.arrayBuffer();
         const workbook = XLSX.read(data, { type: 'array' });
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -627,64 +734,108 @@
           throw new Error("File kosong atau format kolom tidak terbaca.");
         }
 
-        const payload = [];
-        const invalidRows = [];
+        const validPayload = [];
+        const errorDetails = [];
+        const seenInFile = new Set();
 
         rows.forEach((row, index) => {
-          // Fleksibel membaca nama header
+          const excelRowNum = index + 2;
           const rawAsset = (row['BARCODE / NO ASET'] || row['NO ASET'] || row['no_asset'] || Object.values(row)[0] || '').toString().trim().toUpperCase();
           const rawCat = (row['KATEGORI'] || row['ASSET_ID'] || row['asset_id'] || Object.values(row)[1] || '').toString().trim().toUpperCase();
           const rawSn = (row['SERIAL NUMBER (SN)'] || row['SERIAL NUMBER'] || row['SN'] || row['serial_number'] || Object.values(row)[2] || '').toString().trim().toUpperCase();
 
           if (!rawAsset) return; // Skip baris kosong
 
-          if (!ALLOWED_CATEGORIES.includes(rawCat)) {
-            invalidRows.push(`Baris ${index + 2} (${rawAsset}): Kategori '${rawCat}' tidak sesuai dropdown.`);
-          } else {
-            payload.push({
-              no_asset: rawAsset,
-              asset_id: rawCat,
-              serial_number: rawSn || null
-            });
+          // Cek apakah sudah ada di Database Supabase
+          if (existingSet.has(rawAsset)) {
+            errorDetails.push(`• Baris ${excelRowNum} | <span class="text-amber-300 font-bold">${rawAsset}</span> ➔ Sudah ada di Database`);
+            return;
           }
+
+          // Cek apakah dobel di dalam file Excel itu sendiri
+          if (seenInFile.has(rawAsset)) {
+            errorDetails.push(`• Baris ${excelRowNum} | <span class="text-amber-300 font-bold">${rawAsset}</span> ➔ Dobel di dalam file Excel`);
+            return;
+          }
+
+          // Cek apakah kategori valid
+          if (!ALLOWED_CATEGORIES.includes(rawCat)) {
+            errorDetails.push(`• Baris ${excelRowNum} | <span class="text-amber-300 font-bold">${rawAsset}</span> ➔ Kategori '${rawCat || 'KOSONG'}' tidak valid`);
+            return;
+          }
+
+          seenInFile.add(rawAsset);
+          validPayload.push({
+            no_asset: rawAsset,
+            asset_id: rawCat,
+            serial_number: rawSn || null
+          });
         });
 
-        if (invalidRows.length > 0) {
+        // 3. Jika ada error / duplikat, tampilkan daftar rinciannya
+        if (errorDetails.length > 0) {
           playSound('error');
-          alert(`❌ Ditemukan kategori tidak valid:\n\n${invalidRows.slice(0, 5).join('\n')}${invalidRows.length > 5 ? '\n...dan lainnya' : ''}`);
+          PENDING_VALID_BULK_PAYLOAD = validPayload;
+
+          bulkReportTitle.innerText = `⚠️ Ditemukan ${errorDetails.length} Baris Bermasalah / Duplikat:`;
+          bulkValidCount.innerText = `Valid: ${validPayload.length} Baris`;
+          bulkReportList.innerHTML = errorDetails.map(msg => `<div>${msg}</div>`).join('');
+
+          if (validPayload.length > 0) {
+            btnUploadValidOnly.innerText = `⚡ Lewati ${errorDetails.length} Duplikat & Simpan ${validPayload.length} Data Valid`;
+            btnUploadValidOnly.classList.remove('hidden');
+          } else {
+            btnUploadValidOnly.classList.add('hidden');
+          }
+
+          bulkReportBox.classList.remove('hidden');
           return;
         }
 
-        if (payload.length === 0) {
-          throw new Error("Tidak ada data valid yang siap diupload.");
+        if (validPayload.length === 0) {
+          throw new Error("Tidak ada data baru yang siap diupload.");
         }
 
-        // Insert batch ke Supabase
-        const { error } = await supabaseClient
-          .from('master_aset')
-          .insert(payload);
+        // 4. Jika semua bersih tanpa duplikat, langsung insert!
+        await executeBulkInsert(validPayload);
 
-        if (error) {
-          playSound('error');
-          if (error.code === '23505') {
-            alert(`❌ Gagal Upload: Ada No Aset di dalam file yang sudah terdaftar di database! Pastikan tidak ada duplikat.`);
-          } else {
-            alert(`❌ Error Database: ${error.message}`);
-          }
-        } else {
-          playSound('success');
-          showAlert(`🎉 Sukses! ${payload.length} aset baru berhasil didaftarkan sekaligus.`, true);
-          closeModalAddAsset();
-          await initMasterData();
-        }
       } catch (err) {
         playSound('error');
-        alert(`❌ Gagal membaca file: ${err.message}`);
+        alert(`❌ Gagal memproses file: ${err.message}`);
       } finally {
-        btnUpload.innerText = '🚀 Upload & Simpan Semua';
+        btnUpload.innerText = '🚀 Cek & Upload Semua';
         btnUpload.disabled = false;
       }
     });
+
+    // TOMBOL SIMPAN DATA VALID SAJA (LEWATI DUPLIKAT)
+    btnUploadValidOnly.addEventListener('click', async () => {
+      if (PENDING_VALID_BULK_PAYLOAD.length === 0) return;
+      btnUploadValidOnly.disabled = true;
+      btnUploadValidOnly.innerText = '⏳ Menyimpan data valid...';
+      try {
+        await executeBulkInsert(PENDING_VALID_BULK_PAYLOAD);
+      } finally {
+        btnUploadValidOnly.disabled = false;
+      }
+    });
+
+    async function executeBulkInsert(payload) {
+      const { error } = await supabaseClient
+        .from('master_aset')
+        .insert(payload);
+
+      if (error) {
+        playSound('error');
+        alert(`❌ Error Database: ${error.message}`);
+      } else {
+        playSound('success');
+        showAlert(`🎉 Sukses! ${payload.length} aset baru berhasil didaftarkan sekaligus.`, true);
+        PENDING_VALID_BULK_PAYLOAD = [];
+        closeModalAddAsset();
+        await initMasterData();
+      }
+    }
 
     document.getElementById('btn-open-add-asset').addEventListener('click', () => {
       inputAdminPass.value = '';
@@ -711,6 +862,8 @@
         newSnAsset.value = '';
         bulkFileInput.value = '';
         bulkPreviewInfo.classList.add('hidden');
+        bulkReportBox.classList.add('hidden');
+        PENDING_VALID_BULK_PAYLOAD = [];
         
         // Default buka tab satuan
         tabSingleAsset.click();
